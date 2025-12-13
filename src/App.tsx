@@ -1,0 +1,105 @@
+// App.tsx
+import React, { useState } from 'react';
+import { Page } from '@/types';
+import Sidebar from '@/components/Sidebar';
+import Dashboard from '@/components/Dashboard';
+import Patients from '@/components/Patients';
+import Records from '@/components/Records';
+import Agenda from '@/components/Agenda';
+import Financials from '@/components/Financials';
+import Confirmations from '@/components/Confirmations';
+import AiAssistant from '@/components/AiAssistant';
+import Login from '@/components/Login';
+import { AuthProvider, useAuth } from '@/context/AuthContext';
+import { BrainCircuit, LogOut } from 'lucide-react';
+
+// Header Component
+const Header = () => {
+  const { user, signOut } = useAuth();
+
+  return (
+    <header className="bg-white h-16 border-b border-gray-200 flex items-center justify-between px-8 shadow-sm">
+      <div className="flex items-center gap-2 text-[#6A8164]">
+        <BrainCircuit size={20} />
+        <span className="font-semibold text-gray-500 text-sm">ControlePsi</span>
+      </div>
+      <div className="flex items-center gap-3">
+        <span className="text-sm text-gray-500">Olá, <span className="font-bold text-gray-800">{user?.email?.split('@')[0]}</span></span>
+        <div className="w-8 h-8 rounded-full bg-[#6A8164] text-white flex items-center justify-center font-bold text-sm">
+          {user?.email?.[0].toUpperCase()}
+        </div>
+        <button onClick={signOut} className="ml-2 text-gray-400 hover:text-red-500 transition-colors" title="Sair">
+          <LogOut size={18} />
+        </button>
+      </div>
+    </header>
+  );
+};
+
+const AuthenticatedApp: React.FC = () => {
+  const [currentPage, setCurrentPage] = useState<Page>(Page.DASHBOARD);
+
+  const renderContent = () => {
+    switch (currentPage) {
+      case Page.DASHBOARD:
+        return <Dashboard />;
+      case Page.PATIENTS:
+        return <Patients onNavigate={setCurrentPage} />;
+      case Page.RECORDS:
+        return <Records />;
+      case Page.AI_ASSISTANT:
+        return <AiAssistant />;
+      case Page.AGENDA:
+        return <Agenda />;
+      case Page.CONFIRMATIONS:
+        return <Confirmations />;
+      case Page.FINANCIAL:
+        return <Financials />;
+      default:
+        return <Dashboard />;
+    }
+  };
+
+  return (
+    <div className="flex min-h-screen bg-[#F5F7F5] font-sans text-gray-900">
+      <Sidebar currentPage={currentPage} onNavigate={setCurrentPage} />
+
+      <div className="ml-64 flex-1 flex flex-col h-screen overflow-hidden">
+        <Header />
+        <main className="flex-1 overflow-y-auto relative">
+          {renderContent()}
+        </main>
+      </div>
+    </div>
+  );
+};
+
+const AppContent = () => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F5F7F5]">
+        <div className="animate-spin text-[#6A8164]">
+          <BrainCircuit size={48} />
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Login />;
+  }
+
+  return <AuthenticatedApp />;
+};
+
+const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
+};
+
+export default App;

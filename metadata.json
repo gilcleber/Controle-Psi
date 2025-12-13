@@ -1,0 +1,5 @@
+{
+  "name": "ControlePsi",
+  "description": "Plataforma de gestão para psicólogos e terapeutas com prontuário inteligente via IA.",
+  "requestFramePermissions": []
+}
