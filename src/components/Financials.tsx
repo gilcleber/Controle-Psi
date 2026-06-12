@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Download, Loader2, Trash2, Calendar, Search, ChevronDown, X } from 'lucide-react';
+import { Plus, Download, Loader2, Trash2, Calendar, Search, ChevronDown, X, Edit2 } from 'lucide-react';
 import { supabase } from '@/services/supabaseClient';
 import { storage } from '@/services/storage';
 import { Patient } from '@/types';
@@ -22,6 +22,7 @@ const Financials: React.FC = () => {
    const [loading, setLoading] = useState(true);
    const [isModalOpen, setIsModalOpen] = useState(false);
    const [patients, setPatients] = useState<Patient[]>([]);
+   const [editingId, setEditingId] = useState<string | null>(null);
 
    // Date Filter State
    const [dateFilter, setDateFilter] = useState({
@@ -78,7 +79,7 @@ const Financials: React.FC = () => {
          const { data: { user } } = await supabase.auth.getUser();
          if (!user) return;
 
-         const { error } = await supabase.from('transactions').insert([{
+         const transactionData = {
             description: formData.description,
             amount: Number(formData.amount),
             type: formData.type,
@@ -87,20 +88,21 @@ const Financials: React.FC = () => {
             payment_method: formData.payment_method,
             user_id: user.id,
             status: 'paid'
-         }]);
+         };
 
-         if (error) throw error;
+         if (editingId) {
+            const { error } = await supabase
+               .from('transactions')
+               .update(transactionData)
+               .eq('id', editingId);
+            if (error) throw error;
+         } else {
+            const { error } = await supabase.from('transactions').insert([transactionData]);
+            if (error) throw error;
+         }
 
          await fetchTransactions();
-         setIsModalOpen(false);
-         setFormData({
-            description: '',
-            amount: '',
-            type: 'income',
-            date: new Date().toISOString().split('T')[0],
-            patient_id: '',
-            payment_method: 'Pix'
-         });
+         closeModal();
       } catch (error) {
          console.error('Error saving transaction:', error);
          alert('Erro ao salvar transação.');
@@ -117,6 +119,32 @@ const Financials: React.FC = () => {
          console.error('Error deleting transaction:', error);
          alert('Erro ao excluir transação.');
       }
+   };
+
+   const handleEdit = (t: Transaction) => {
+      setEditingId(t.id);
+      setFormData({
+         description: t.description,
+         amount: t.amount.toString(),
+         type: t.type,
+         date: t.date.split('T')[0],
+         patient_id: t.patient_id || '',
+         payment_method: t.payment_method || 'Pix'
+      });
+      setIsModalOpen(true);
+   };
+
+   const closeModal = () => {
+      setIsModalOpen(false);
+      setEditingId(null);
+      setFormData({
+         description: '',
+         amount: '',
+         type: 'income',
+         date: new Date().toISOString().split('T')[0],
+         patient_id: '',
+         payment_method: 'Pix'
+      });
    };
 
    // Calculate Totals
@@ -228,13 +256,22 @@ const Financials: React.FC = () => {
                                  {t.type === 'income' ? '+' : '-'} {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(t.amount))}
                               </td>
                               <td className="px-6 py-4 text-center">
-                                 <button
-                                    onClick={() => handleDelete(t.id)}
-                                    className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-2 hover:bg-red-50 rounded-full"
-                                    title="Excluir"
-                                 >
-                                    <Trash2 size={16} />
-                                 </button>
+                                 <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                                    <button
+                                       onClick={() => handleEdit(t)}
+                                       className="text-gray-400 hover:text-[#6A8164] p-2 hover:bg-green-50 rounded-full transition-colors"
+                                       title="Editar"
+                                    >
+                                       <Edit2 size={16} />
+                                    </button>
+                                    <button
+                                       onClick={() => handleDelete(t.id)}
+                                       className="text-gray-400 hover:text-red-500 p-2 hover:bg-red-50 rounded-full transition-colors"
+                                       title="Excluir"
+                                    >
+                                       <Trash2 size={16} />
+                                    </button>
+                                 </div>
                               </td>
                            </tr>
                         ))}
@@ -249,8 +286,10 @@ const Financials: React.FC = () => {
             <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
                <div className="bg-white rounded-xl w-full max-w-md shadow-2xl animate-fade-in">
                   <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-                     <h3 className="text-lg font-bold text-gray-800">Nova transação</h3>
-                     <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                     <h3 className="text-lg font-bold text-gray-800">
+                        {editingId ? 'Editar transação' : 'Nova transação'}
+                     </h3>
+                     <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 transition-colors">
                         <X size={20} />
                      </button>
                   </div>
@@ -361,7 +400,7 @@ const Financials: React.FC = () => {
                   </div>
                   <div className="p-6 border-t border-gray-100 flex justify-end gap-3 bg-gray-50 rounded-b-xl">
                      <button
-                        onClick={() => setIsModalOpen(false)}
+                        onClick={closeModal}
                         className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-white border border-gray-300 rounded-lg transition-colors"
                      >
                         Cancelar

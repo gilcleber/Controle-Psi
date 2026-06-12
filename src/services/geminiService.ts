@@ -35,7 +35,7 @@ export const summarizeSessionNotes = async (rawNotes: string): Promise<string> =
 
   try {
     const response: any = await ai.models.generateContent({
-      model: "gemini-2.0-flash", // Updated to a more standard model name if 2.5 was a typo or specific preview
+      model: "gemini-1.5-flash", // Modelo rápido e econômico
       contents: `
 Você é um assistente de IA especializado em psicologia e documentação clínica.
 Sua tarefa é ler as anotações brutas de uma sessão de terapia abaixo e criar um resumo clínico profissional, conciso e estruturado (formato SOAP ou similar, mas focado em resumo).

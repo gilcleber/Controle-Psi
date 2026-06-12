@@ -10,6 +10,10 @@ import Financials from '@/components/Financials';
 import Confirmations from '@/components/Confirmations';
 import AiAssistant from '@/components/AiAssistant';
 import Login from '@/components/Login';
+import AdminPanel from '@/components/AdminPanel';
+import LicenseLockScreen from '@/components/LicenseLockScreen';
+import ProfileCompletion from '@/components/ProfileCompletion';
+import DocumentGenerator from './components/DocumentGenerator';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { BrainCircuit, LogOut } from 'lucide-react';
 
@@ -18,14 +22,14 @@ const Header = () => {
   const { user, signOut } = useAuth();
 
   return (
-    <header className="bg-white h-16 border-b border-gray-200 flex items-center justify-between px-8 shadow-sm">
-      <div className="flex items-center gap-2 text-[#6A8164]">
+    <header className="bg-white h-16 border-b border-secondary-light flex items-center justify-between px-8 shadow-sm">
+      <div className="flex items-center gap-2 text-primary-dark">
         <BrainCircuit size={20} />
-        <span className="font-semibold text-gray-500 text-sm">ControlePsi</span>
+        <span className="font-semibold text-text-light text-sm">ControlePsi</span>
       </div>
       <div className="flex items-center gap-3">
-        <span className="text-sm text-gray-500">Olá, <span className="font-bold text-gray-800">{user?.email?.split('@')[0]}</span></span>
-        <div className="w-8 h-8 rounded-full bg-[#6A8164] text-white flex items-center justify-center font-bold text-sm">
+        <span className="text-sm text-text-light">Olá, <span className="font-bold text-text-main">{user?.email?.split('@')[0]}</span></span>
+        <div className="w-8 h-8 rounded-full bg-primary-dark text-white flex items-center justify-center font-bold text-sm">
           {user?.email?.[0].toUpperCase()}
         </div>
         <button onClick={signOut} className="ml-2 text-gray-400 hover:text-red-500 transition-colors" title="Sair">
@@ -55,13 +59,17 @@ const AuthenticatedApp: React.FC = () => {
         return <Confirmations />;
       case Page.FINANCIAL:
         return <Financials />;
+      case Page.DOCUMENTS:
+        return <DocumentGenerator />;
+      case Page.ADMIN:
+        return <AdminPanel />;
       default:
         return <Dashboard />;
     }
   };
 
   return (
-    <div className="flex min-h-screen bg-[#F5F7F5] font-sans text-gray-900">
+    <div className="flex min-h-screen bg-background font-sans text-text-main">
       <Sidebar currentPage={currentPage} onNavigate={setCurrentPage} />
 
       <div className="ml-64 flex-1 flex flex-col h-screen overflow-hidden">
@@ -75,7 +83,7 @@ const AuthenticatedApp: React.FC = () => {
 };
 
 const AppContent = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, license } = useAuth();
 
   if (loading) {
     return (
@@ -91,7 +99,24 @@ const AppContent = () => {
     return <Login />;
   }
 
-  return <AuthenticatedApp />;
+  // Admin Bypass
+  const adminEmails = ['gilcleberproducoes@gmail.com', 'gilcleberlocutor@gmail.com'];
+  const isAdmin = user.email && adminEmails.includes(user.email);
+
+  // Check License
+  const isExpired = license?.expiration_date && new Date(license.expiration_date) < new Date();
+  const hasActiveLicense = license && license.status === 'active' && !isExpired;
+
+  if (!isAdmin && !hasActiveLicense) {
+    return <LicenseLockScreen />;
+  }
+
+  return (
+    <>
+      <ProfileCompletion />
+      <AuthenticatedApp />
+    </>
+  );
 };
 
 const App: React.FC = () => {

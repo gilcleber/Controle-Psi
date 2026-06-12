@@ -1,8 +1,25 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-/* Custom styles can go here */
-body {
-  background-color: #F5F7F5;
+@theme {
+  --color-primary: #829A8F;
+  --color-primary-dark: #5B7065;
+  --color-primary-light: #E8F0EC;
+
+  --color-secondary: #F0EDE5;
+  --color-secondary-light: #F8F6F2;
+
+  --color-background: #FAFAFA;
+  --color-background-dark: #F3F4F6;
+
+  --color-text-main: #374151;
+  --color-text-light: #6B7280;
+
+  --font-sans: 'Inter', 'sans-serif';
+}
+
+/* Custom base styles */
+@layer base {
+  body {
+    @apply bg-background text-text-main antialiased selection:bg-primary-light selection:text-primary-dark;
+  }
 }

@@ -109,11 +109,39 @@ const Records: React.FC = () => {
     }
   };
 
+  // Structured Mode State
+  const [recordMode, setRecordMode] = useState<'free' | 'structured'>('free');
+  const [structuredData, setStructuredData] = useState({
+    subject: '', // Queixa/Assunto
+    mood: '', // Humor/Afeto
+    discussion: '', // O que foi trabalhado
+    plan: '' // Próximos passos
+  });
+
+  // Load existing notes into structured data if format matches
+  useEffect(() => {
+    if (sessionNotes && sessionNotes.includes('[ASSUNTO]:')) {
+      const subject = sessionNotes.match(/\[ASSUNTO\]: (.*?)(?=\n\[|$)/s)?.[1] || '';
+      const mood = sessionNotes.match(/\[HUMOR\]: (.*?)(?=\n\[|$)/s)?.[1] || '';
+      const discussion = sessionNotes.match(/\[DISCUSSÃO\]: (.*?)(?=\n\[|$)/s)?.[1] || '';
+      const plan = sessionNotes.match(/\[PLANO\]: (.*?)(?=\n\[|$)/s)?.[1] || '';
+
+      setStructuredData({ subject, mood, discussion, plan });
+      setRecordMode('structured');
+    }
+  }, [sessionNotes]);
+
+  const getFormattedNotes = () => {
+    if (recordMode === 'free') return sessionNotes;
+    return `[ASSUNTO]: ${structuredData.subject}\n\n[HUMOR]: ${structuredData.mood}\n\n[DISCUSSÃO]: ${structuredData.discussion}\n\n[PLANO]: ${structuredData.plan}`;
+  };
+
   const handleSummarize = async () => {
-    if (!sessionNotes.trim()) return;
+    const textToSummarize = getFormattedNotes();
+    if (!textToSummarize.trim()) return;
     setIsSummarizing(true);
     try {
-      const summary = await summarizeSessionNotes(sessionNotes);
+      const summary = await summarizeSessionNotes(textToSummarize);
       setAiSummary(summary);
     } catch (error) {
       alert("Erro ao conectar com a IA.");
@@ -123,7 +151,9 @@ const Records: React.FC = () => {
   };
 
   const handleSaveSession = async () => {
-    if (!selectedPatientId || !sessionNotes) {
+    const finalNotes = getFormattedNotes();
+
+    if (!selectedPatientId || !finalNotes.trim()) {
       alert('Selecione um paciente e adicione anotações.');
       return;
     }
@@ -141,7 +171,7 @@ const Records: React.FC = () => {
       const newSession = {
         patient_id: selectedPatientId,
         date: new Date().toISOString().split('T')[0], // YYYY-MM-DD
-        notes: sessionNotes,
+        notes: finalNotes,
         summary: aiSummary,
         tags: [], // Could extract tags from AI later
         user_id: user.id
@@ -271,25 +301,87 @@ const Records: React.FC = () => {
             <div className="flex-1 overflow-y-auto p-6 flex flex-col md:flex-row gap-6">
               {/* Left: Raw Notes */}
               <div className="flex-1 flex flex-col">
-                <div className="flex justify-between items-center mb-2">
-                  <label className="text-sm font-semibold text-gray-700">Anotações da Sessão</label>
-                  <button
-                    onClick={toggleRecording}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${isRecording
-                      ? 'bg-red-100 text-red-600 animate-pulse border border-red-200'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200'
-                      }`}
-                  >
-                    {isRecording ? <><StopCircle size={14} /> Gravando...</> : <><Mic size={14} /> Gravar Áudio</>}
-                  </button>
+                <div className="flex justify-between items-center mb-4">
+                  <div className="flex rounded-lg bg-gray-100 p-1">
+                    <button
+                      onClick={() => setRecordMode('free')}
+                      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${recordMode === 'free' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                    >
+                      Texto Livre
+                    </button>
+                    <button
+                      onClick={() => setRecordMode('structured')}
+                      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${recordMode === 'structured' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                    >
+                      Estruturado
+                    </button>
+                  </div>
+
+                  {recordMode === 'free' && (
+                    <button
+                      onClick={toggleRecording}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${isRecording
+                        ? 'bg-red-100 text-red-600 animate-pulse border border-red-200'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200'
+                        }`}
+                    >
+                      {isRecording ? <><StopCircle size={14} /> Gravando...</> : <><Mic size={14} /> Gravar Áudio</>}
+                    </button>
+                  )}
                 </div>
-                <textarea
-                  className="flex-1 w-full border border-gray-300 rounded-lg p-4 focus:ring-2 focus:ring-[#6A8164] focus:border-transparent resize-none text-base leading-relaxed"
-                  placeholder="Digite aqui ou grave o áudio da sessão..."
-                  value={sessionNotes}
-                  onChange={(e) => setSessionNotes(e.target.value)}
-                />
-                <p className="text-xs text-gray-400 mt-2">Dica: Use o botão de gravar para transcrever a sessão em tempo real.</p>
+
+                {recordMode === 'free' ? (
+                  <>
+                    <textarea
+                      className="flex-1 w-full border border-gray-300 rounded-lg p-4 focus:ring-2 focus:ring-[#6A8164] focus:border-transparent resize-none text-base leading-relaxed"
+                      placeholder="Digite aqui ou grave o áudio da sessão..."
+                      value={sessionNotes}
+                      onChange={(e) => setSessionNotes(e.target.value)}
+                    />
+                    <p className="text-xs text-gray-400 mt-2">Dica: Use o botão de gravar para transcrever a sessão em tempo real.</p>
+                  </>
+                ) : (
+                  <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Queixa / Assunto Principal</label>
+                      <input
+                        className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-primary focus:border-transparent"
+                        value={structuredData.subject}
+                        onChange={(e) => setStructuredData({ ...structuredData, subject: e.target.value })}
+                        placeholder="Sobre o que falaram hoje?"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Humor / Afeto</label>
+                      <input
+                        className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-primary focus:border-transparent"
+                        value={structuredData.mood}
+                        onChange={(e) => setStructuredData({ ...structuredData, mood: e.target.value })}
+                        placeholder="Como o paciente estava se sentindo?"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Discussão / Intervenções</label>
+                      <textarea
+                        className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-primary focus:border-transparent"
+                        rows={4}
+                        value={structuredData.discussion}
+                        onChange={(e) => setStructuredData({ ...structuredData, discussion: e.target.value })}
+                        placeholder="Detalhes da sessão e intervenções realizadas..."
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Plano / Próximos Passos</label>
+                      <textarea
+                        className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-primary focus:border-transparent"
+                        rows={2}
+                        value={structuredData.plan}
+                        onChange={(e) => setStructuredData({ ...structuredData, plan: e.target.value })}
+                        placeholder="O que ficou combinado para a próxima?"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Right: AI Summary */}
@@ -301,7 +393,7 @@ const Records: React.FC = () => {
                   </div>
                   <button
                     onClick={handleSummarize}
-                    disabled={isSummarizing || !sessionNotes}
+                    disabled={isSummarizing || (recordMode === 'free' ? !sessionNotes : !structuredData.subject)}
                     className="text-xs bg-[#6A8164] text-white px-3 py-1.5 rounded-md hover:bg-[#586e53] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                   >
                     {isSummarizing ? <Loader2 size={12} className="animate-spin" /> : 'Gerar Resumo'}

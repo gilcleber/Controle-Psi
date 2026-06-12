@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '@/services/supabaseClient';
 import { BrainCircuit, Loader2, ArrowLeft } from 'lucide-react';
+import TermsOfUse from './TermsOfUse';
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -10,6 +11,7 @@ export default function Login() {
     const [isForgotPassword, setIsForgotPassword] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [message, setMessage] = useState<string | null>(null);
+    const [showTerms, setShowTerms] = useState(false);
 
     const handleAuth = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -19,12 +21,21 @@ export default function Login() {
 
         try {
             if (isSignUp) {
-                const { error } = await supabase.auth.signUp({
+                const { data, error } = await supabase.auth.signUp({
                     email,
                     password,
+                    options: {
+                        emailRedirectTo: 'https://gilcleber.github.io/Controle-Psi/',
+                    }
                 });
                 if (error) throw error;
-                setMessage('Verifique seu email para confirmar o cadastro!');
+
+                if (data.session) {
+                    // Login automático (Confirmação desativada)
+                    // O AuthContext vai redirecionar automaticamente
+                } else {
+                    setMessage('Verifique seu email para confirmar o cadastro!');
+                }
             } else {
                 const { error } = await supabase.auth.signInWithPassword({
                     email,
@@ -75,11 +86,11 @@ export default function Login() {
         <div className="min-h-screen bg-[#F5F7F5] flex items-center justify-center p-4">
             <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-100">
                 <div className="flex flex-col items-center mb-8">
-                    <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-4">
-                        <BrainCircuit size={32} className="text-[#6A8164]" />
+                    <div className="w-16 h-16 bg-secondary-light rounded-full flex items-center justify-center mb-4">
+                        <BrainCircuit size={32} className="text-primary-dark" />
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-800">ControlePsi</h1>
-                    <p className="text-gray-500 text-sm">Gestão Inteligente para Terapeutas</p>
+                    <h1 className="text-2xl font-bold text-text-main">ControlePsi</h1>
+                    <p className="text-text-light text-sm">Gestão Inteligente para Terapeutas</p>
                 </div>
 
                 {isForgotPassword ? (
@@ -183,13 +194,13 @@ export default function Login() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-[#6A8164] text-white py-3 rounded-lg font-medium hover:bg-[#586e53] transition-colors flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                            className="w-full bg-primary-dark text-white py-3 rounded-lg font-medium hover:bg-primary transition-colors flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                         >
                             {loading && <Loader2 size={18} className="animate-spin" />}
                             {isSignUp ? 'Criar Conta' : 'Entrar'}
                         </button>
 
-                        <div className="mt-6 text-center">
+                        <div className="mt-6 text-center space-y-4">
                             <button
                                 type="button"
                                 onClick={() => {
@@ -197,14 +208,24 @@ export default function Login() {
                                     setError(null);
                                     setMessage(null);
                                 }}
-                                className="text-sm text-gray-500 hover:text-[#6A8164] transition-colors"
+                                className="text-sm text-text-light hover:text-primary-dark transition-colors"
                             >
                                 {isSignUp ? 'Já tem uma conta? Entre aqui' : 'Não tem conta? Crie uma agora'}
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => setShowTerms(true)}
+                                className="block w-full text-xs text-secondary underline hover:text-primary transition-colors"
+                            >
+                                Termos de Uso e Privacidade
                             </button>
                         </div>
                     </form>
                 )}
             </div>
+
+            <TermsOfUse isOpen={showTerms} onClose={() => setShowTerms(false)} />
         </div>
     );
 }

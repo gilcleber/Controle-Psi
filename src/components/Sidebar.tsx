@@ -1,6 +1,7 @@
-// src/components/Sidebar.tsx
+```typescript
 import React, { useRef, useState } from 'react';
 import { Page } from '@/types';
+import { useAuth } from '@/context/AuthContext';
 import {
   LayoutDashboard,
   Users,
@@ -9,10 +10,13 @@ import {
   Calendar,
   MessageCircle,
   DollarSign,
+  Settings,
   LogOut,
   Download,
   Upload,
-  Loader2
+  Loader2,
+  Shield,
+  FileCheck
 } from 'lucide-react';
 import { downloadBackupFile, restoreBackupFromString } from '@/services/backupService';
 
@@ -22,6 +26,7 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ currentPage, onNavigate }) => {
+  const { user, signOut } = useAuth();
   const [backupLoading, setBackupLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -33,7 +38,13 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onNavigate }) => {
     { page: Page.AGENDA, label: 'Agenda', icon: Calendar },
     { page: Page.CONFIRMATIONS, label: 'Confirmações', icon: MessageCircle },
     { page: Page.FINANCIAL, label: 'Financeiro', icon: DollarSign },
+    { page: Page.DOCUMENTS, label: 'Documentos', icon: FileCheck },
   ];
+
+  const adminEmails = ['gilcleberproducoes@gmail.com', 'gilcleberlocutor@gmail.com'];
+  if (user?.email && adminEmails.includes(user.email)) {
+    menuItems.push({ page: Page.ADMIN, label: 'Administração', icon: Shield });
+  }
 
   const handleExport = async () => {
     if (backupLoading) return;
@@ -73,7 +84,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onNavigate }) => {
           window.location.reload();
         }
       } else {
-        alert(`Erro: ${result.message}\n${result.errors.join(', ')}`);
+        alert(`Erro: ${ result.message } \n${ result.errors.join(', ') } `);
       }
     } catch (error) {
       console.error(error);
@@ -85,14 +96,14 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onNavigate }) => {
   };
 
   return (
-    <aside className="w-64 bg-[#6A8164] text-white flex flex-col h-screen fixed left-0 top-0 shadow-xl z-50 font-sans">
+    <aside className="w-64 bg-primary-dark text-white flex flex-col h-screen fixed left-0 top-0 shadow-xl z-50 font-sans">
       <div className="p-6 flex items-center gap-3 mb-4">
         <div className="bg-white/20 p-2 rounded-lg">
           <BrainCircuit size={24} className="text-white" />
         </div>
         <div>
           <h1 className="font-bold text-lg leading-tight">ControlePsi</h1>
-          <p className="text-[10px] text-green-100 opacity-80 leading-tight max-w-[120px]">Proteção inteligente, uso descomplicado</p>
+          <p className="text-[10px] text-primary-light opacity-80 leading-tight max-w-[120px]">Proteção inteligente, uso descomplicado</p>
         </div>
       </div>
 
@@ -105,9 +116,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onNavigate }) => {
               key={String(item.page)}
               onClick={() => onNavigate(item.page)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-sm font-medium
-                ${isActive
-                  ? 'bg-white/20 text-white shadow-sm backdrop-blur-sm'
-                  : 'text-green-50 hover:bg-white/10 hover:text-white'
+                ${
+                  isActive
+                    ? 'bg-white/15 text-white shadow-sm'
+                    : 'text-secondary-light/70 hover:bg-white/5 hover:text-white'
                 }`}
             >
               <Icon size={18} />
@@ -123,7 +135,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onNavigate }) => {
           <button
             onClick={handleExport}
             disabled={backupLoading}
-            className="w-full flex items-center gap-3 px-4 py-2 text-green-100 hover:text-white hover:bg-white/10 rounded-lg transition-colors text-xs font-medium"
+            className="w-full flex items-center gap-3 px-4 py-2 text-secondary-light hover:text-white hover:bg-white/10 rounded-lg transition-colors text-xs font-medium"
           >
             {backupLoading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
             Exportar Backup
@@ -131,7 +143,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onNavigate }) => {
           <button
             onClick={handleImportClick}
             disabled={backupLoading}
-            className="w-full flex items-center gap-3 px-4 py-2 text-green-100 hover:text-white hover:bg-white/10 rounded-lg transition-colors text-xs font-medium"
+            className="w-full flex items-center gap-3 px-4 py-2 text-secondary-light hover:text-white hover:bg-white/10 rounded-lg transition-colors text-xs font-medium"
           >
             {backupLoading ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
             Importar Backup
@@ -145,7 +157,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onNavigate }) => {
           />
         </div>
 
-        <button className="w-full flex items-center gap-3 px-4 py-3 text-green-100 hover:text-white hover:bg-white/10 rounded-lg transition-colors text-sm font-medium">
+        <button
+          onClick={signOut}
+          className="w-full flex items-center gap-3 px-4 py-3 text-secondary-light hover:text-white hover:bg-white/10 rounded-lg transition-colors text-sm font-medium"
+        >
           <LogOut size={18} />
           Sair
         </button>

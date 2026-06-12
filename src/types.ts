@@ -6,6 +6,8 @@ export enum Page {
     AGENDA = 'agenda',
     CONFIRMATIONS = 'confirmations',
     FINANCIAL = 'financial',
+    DOCUMENTS = 'documents',
+    ADMIN = 'admin',
 }
 
 export interface Patient {
@@ -26,4 +28,22 @@ export interface SessionRecord {
     notes: string;
     summary?: string;
     tags?: string[];
+}
+
+export interface Appointment {
+    id: string;
+    date: string;
+    time?: string;
+    patient_id: string;
+    patient?: Patient;
+    notes?: string;
+    status?: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+}
+
+export interface UserLicense {
+    user_id: string;
+    email: string;
+    status: 'pending' | 'active' | 'blocked';
+    expiration_date?: string;
+    created_at: string;
 }

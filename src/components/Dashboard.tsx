@@ -118,7 +118,7 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="p-8 space-y-8 animate-fade-in bg-[#f8f9fa] min-h-screen">
+    <div className="p-8 space-y-8 animate-fade-in bg-background min-h-screen">
       <div className="flex justify-between items-end">
         <div>
           <h2 className="text-2xl font-bold text-gray-800">Dashboard</h2>
@@ -168,7 +168,7 @@ const Dashboard: React.FC = () => {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 flex items-center gap-4">
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
           <div className="p-3 bg-green-50 text-green-600 rounded-lg">
             <DollarSign size={24} />
           </div>
@@ -180,7 +180,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 flex items-center gap-4">
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
           <div className="p-3 bg-red-50 text-red-600 rounded-lg">
             <DollarSign size={24} />
           </div>
@@ -192,7 +192,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 flex items-center gap-4">
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
           <div className="p-3 bg-purple-50 text-purple-600 rounded-lg">
             <Calendar size={24} />
           </div>
@@ -202,7 +202,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 flex items-center gap-4">
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
           <div className="p-3 bg-orange-50 text-orange-600 rounded-lg">
             <RefreshCw size={24} />
           </div>
@@ -215,7 +215,7 @@ const Dashboard: React.FC = () => {
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100">
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <h4 className="text-base font-bold text-gray-800 mb-6">Faturamentos (R$)</h4>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -230,7 +230,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100">
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <h4 className="text-base font-bold text-gray-800 mb-6">Sessões</h4>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
