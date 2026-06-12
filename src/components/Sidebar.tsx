@@ -1,4 +1,3 @@
-```typescript
 import React, { useRef, useState } from 'react';
 import { Page } from '@/types';
 import { useAuth } from '@/context/AuthContext';
