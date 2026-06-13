@@ -112,7 +112,7 @@ const Confirmations: React.FC = () => {
                                     <div>
                                         <h4 className="font-bold text-gray-800">{session.patient?.firstName} {session.patient?.lastName}</h4>
                                         <div className="flex items-center gap-3 text-sm text-gray-500 mt-0.5">
-                                            <span>{new Date(session.date).toLocaleDateString('pt-BR')}</span>
+                                            <span>{session.date.split('-').reverse().join('/')}</span>
                                             <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
                                             <span>{session.time}</span>
                                         </div>

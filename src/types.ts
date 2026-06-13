@@ -6,7 +6,7 @@ export enum Page {
     AGENDA = 'agenda',
     CONFIRMATIONS = 'confirmations',
     FINANCIAL = 'financial',
-    DOCUMENTS = 'documents',
+    TEMPLATES = 'templates',
     ADMIN = 'admin',
 }
 

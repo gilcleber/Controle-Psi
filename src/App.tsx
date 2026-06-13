@@ -13,7 +13,7 @@ import Login from '@/components/Login';
 import AdminPanel from '@/components/AdminPanel';
 import LicenseLockScreen from '@/components/LicenseLockScreen';
 import ProfileCompletion from '@/components/ProfileCompletion';
-import DocumentGenerator from './components/DocumentGenerator';
+import FormTemplates from './components/FormTemplates';
 import AnamnesisForm from './components/AnamnesisForm';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { BrainCircuit, LogOut } from 'lucide-react';
@@ -60,8 +60,8 @@ const AuthenticatedApp: React.FC = () => {
         return <Confirmations />;
       case Page.FINANCIAL:
         return <Financials />;
-      case Page.DOCUMENTS:
-        return <DocumentGenerator />;
+      case Page.TEMPLATES:
+        return <FormTemplates />;
       case Page.ADMIN:
         return <AdminPanel />;
       default:

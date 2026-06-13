@@ -7,7 +7,15 @@ import { summarizeSessionNotes } from '@/services/geminiService';
 
 const AiAssistant: React.FC = () => {
     const [patients, setPatients] = useState<Patient[]>([]);
-    const [selectedPatientId, setSelectedPatientId] = useState<string>('');
+    const [selectedPatientId, setSelectedPatientId] = useState<string>(() => {
+        return localStorage.getItem('selectedPatientId') || '';
+    });
+
+    useEffect(() => {
+        if (selectedPatientId) {
+            localStorage.setItem('selectedPatientId', selectedPatientId);
+        }
+    }, [selectedPatientId]);
     const [isRecording, setIsRecording] = useState(false);
     const [timer, setTimer] = useState(0);
     const [sessionNotes, setSessionNotes] = useState('');
@@ -194,51 +202,23 @@ const AiAssistant: React.FC = () => {
                 )}
 
                 <div className="w-full text-left">
-                    <h4 className="font-bold text-gray-800 mb-4 text-sm">Leia atentamente antes de usar:</h4>
+                    <h4 className="font-bold text-gray-800 mb-4 text-sm">Como funciona o assistente de IA:</h4>
                     <ul className="space-y-3 text-xs text-gray-500 leading-relaxed">
                         <li className="flex gap-2">
-                            <span className="block w-1 h-1 rounded-full bg-gray-400 mt-1.5 flex-shrink-0"></span>
-                            Preferencialmente utilize o navegador <strong className="text-gray-700">Google Chrome</strong> para fazer a escuta da sua atendimento.
+                            <span className="block w-1 h-1 rounded-full bg-[#6A8164] mt-1.5 flex-shrink-0"></span>
+                            Você pode usar o seu <strong className="text-gray-700">celular</strong> para gravar o áudio da sessão, deixando o computador livre para o atendimento online por vídeo.
                         </li>
                         <li className="flex gap-2">
-                            <span className="block w-1 h-1 rounded-full bg-gray-400 mt-1.5 flex-shrink-0"></span>
-                            Para usar a Inteligência Artificial para fazer o resumo da sua atendimento, você deve usar um celular ou um computador que <strong className="text-gray-700">não esteja na mesma chamada da atendimento online com seu paciente</strong>. Isso é necessário para que a Inteligência Artificial possa escutar você e o seu paciente falando.
+                            <span className="block w-1 h-1 rounded-full bg-[#6A8164] mt-1.5 flex-shrink-0"></span>
+                            A gravação começa ao clicar no microfone e termina apenas quando você clicar no botão de parar. O cronômetro não se fechará sozinho.
                         </li>
                         <li className="flex gap-2">
-                            <span className="block w-1 h-1 rounded-full bg-gray-400 mt-1.5 flex-shrink-0"></span>
-                            O seu celular ou computador que ficará escutando precisa ficar nessa tela com o cronômetro correndo. Caso você desligue, saia dessa tela, você escutará um BEEP indicando que precisa voltar para essa tela. Enquanto você não retornar para essa tela o BEEP não irá parar.
+                            <span className="block w-1 h-1 rounded-full bg-[#6A8164] mt-1.5 flex-shrink-0"></span>
+                            Após a sessão, clique em <strong className="text-[#6A8164]">Salvar e Gerar Resumo</strong>. O sistema processará o áudio, criará um resumo clínico profissional e o salvará **automaticamente no Prontuário do paciente**.
                         </li>
                         <li className="flex gap-2">
-                            <span className="block w-1 h-1 rounded-full bg-gray-400 mt-1.5 flex-shrink-0"></span>
-                            A Inteligência Artificial não consegue ver a imagem ou vídeo, ou seja, se você ficar escutando o BEEP não vai ativar o vídeo da sua atendimento.
-                        </li>
-                        <li className="flex gap-2">
-                            <span className="block w-1 h-1 rounded-full bg-gray-400 mt-1.5 flex-shrink-0"></span>
-                            Enquanto a escuta estiver em andamento, uma <strong className="text-gray-700">tarja vermelha</strong> ficará no topo da tela indicando que a escuta está acontecendo e impedindo a navegação por outras abas do aplicativo. Quando a escuta for finalizada essa tarja é removida e você poderá navegar normalmente pelo aplicativo.
-                        </li>
-                        <li className="flex gap-2">
-                            <span className="block w-1 h-1 rounded-full bg-gray-400 mt-1.5 flex-shrink-0"></span>
-                            Para preservar sua privacidade e a do seu paciente, a IA começa a escutar após você pressionar o botão microfone e termina quando a atendimento finalizar ou quando você parar a gravação. Durante a atendimento, caso você fique sem conexão de internet, você não terá prejuízo para receber o resumo da atendimento.
-                        </li>
-                        <li className="flex gap-2">
-                            <span className="block w-1 h-1 rounded-full bg-gray-400 mt-1.5 flex-shrink-0"></span>
-                            O tempo total da atendimento será de no máximo 80 minutos.
-                        </li>
-                        <li className="flex gap-2">
-                            <span className="block w-1 h-1 rounded-full bg-gray-400 mt-1.5 flex-shrink-0"></span>
-                            Quando o cronômetro marcar 40 minutos ele ficará vermelho para informar que faltam 10 minutos para encerrar a atendimento.
-                        </li>
-                        <li className="flex gap-2">
-                            <span className="block w-1 h-1 rounded-full bg-gray-400 mt-1.5 flex-shrink-0"></span>
-                            Caso você tenha uma atendimento mais longa do que o normal, você terá uma <strong className="text-gray-700">tolerância de até 10 minutos</strong> após os 70 minutos da atendimento para fazer isso sem que utilize seus créditos. Após os 80 segundos do início da atendimento o crédito será cobrado do seu saldo.
-                        </li>
-                        <li className="flex gap-2">
-                            <span className="block w-1 h-1 rounded-full bg-gray-400 mt-1.5 flex-shrink-0"></span>
-                            Ao finalizar a atendimento um resumo da atendimento será disponibilizado na aba "Minhas Atendimentos", cerca de 3 a 5 minutos após o término da atendimento. Procure pelo nome do paciente e a data que realizou essa atendimento.
-                        </li>
-                        <li className="flex gap-2">
-                            <span className="block w-1 h-1 rounded-full bg-gray-400 mt-1.5 flex-shrink-0"></span>
-                            Por questões de proteção dos dados a plataforma ControlePsi <strong className="text-gray-700">não grava e não armazena</strong> o áudio da atendimento.
+                            <span className="block w-1 h-1 rounded-full bg-[#6A8164] mt-1.5 flex-shrink-0"></span>
+                            Privacidade garantida: O áudio da sessão <strong className="text-red-500">não é gravado permanentemente e nem armazenado</strong>. Ele é apenas processado momentaneamente para gerar o texto e logo em seguida é descartado.
                         </li>
                     </ul>
                 </div>

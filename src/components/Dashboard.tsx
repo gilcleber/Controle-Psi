@@ -1,35 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
-import { DollarSign, Calendar, RefreshCw, Loader2, Download } from 'lucide-react';
+import { Calendar, Clock, User, CheckCircle, Clock3, CalendarDays, ArrowRight } from 'lucide-react';
 import { supabase } from '@/services/supabaseClient';
+
+interface DashboardSession {
+  id: string;
+  date: string;
+  time: string;
+  status: string;
+  patient: {
+    firstName: string;
+    lastName: string;
+    phone: string;
+  };
+}
 
 const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
-  const [kpi, setKpi] = useState({
-    income: 0,
-    receivable: 0,
-    sessions: 0,
-    reschedules: 0
-  });
-  const [chartData, setChartData] = useState<any[]>([]);
-
-  // Date Filters
-  const [dateFilter, setDateFilter] = useState({
-    startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
-    endDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0]
-  });
+  const [todaySessions, setTodaySessions] = useState<DashboardSession[]>([]);
+  const [upcomingSessions, setUpcomingSessions] = useState<DashboardSession[]>([]);
+  const [unreadAnamnesis, setUnreadAnamnesis] = useState<number>(0);
 
   useEffect(() => {
     fetchDashboardData();
-  }, [dateFilter]);
+  }, []);
 
   const fetchDashboardData = async () => {
     try {
@@ -37,71 +30,68 @@ const Dashboard: React.FC = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // 1. Fetch Transactions for Income (Filtered by Date)
-      const { data: transactions } = await supabase
-        .from('transactions')
-        .select('amount, type, date')
-        .eq('user_id', user.id)
-        .gte('date', dateFilter.startDate)
-        .lte('date', dateFilter.endDate);
+      const today = new Date();
+      const localTodayDate = today.toLocaleDateString('en-CA');
 
-      // 2. Fetch Sessions (Filtered by Date)
-      const { data: sessions } = await supabase
+      const futureDate = new Date();
+      futureDate.setDate(today.getDate() + 15); // Next 15 days
+      const localFutureDate = futureDate.toLocaleDateString('en-CA');
+
+      const { data: sessions, error } = await supabase
         .from('sessions')
-        .select('date')
+        .select('id, date, status, patient:patients(first_name, last_name, phone)')
         .eq('user_id', user.id)
-        .gte('date', dateFilter.startDate)
-        .lte('date', dateFilter.endDate);
+        .gte('date', localTodayDate)
+        .lte('date', localFutureDate + 'T23:59:59')
+        .order('date', { ascending: true });
 
-      // Calculate KPIs
-      let totalIncome = 0;
-      let totalExpense = 0;
+      if (error) {
+          console.error("Supabase error:", error);
+      }
 
-      transactions?.forEach(t => {
-        if (t.type === 'income') totalIncome += Number(t.amount);
-        if (t.type === 'expense') totalExpense += Number(t.amount);
-      });
+      const { count, error: anamnesisError } = await supabase
+        .from('anamnesis_forms')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('is_read', false);
+      
+      if (!anamnesisError) {
+          setUnreadAnamnesis(count || 0);
+      }
 
-      const totalSessions = sessions?.length || 0;
+      const todayList: DashboardSession[] = [];
+      const upcomingList: DashboardSession[] = [];
 
-      setKpi({
-        income: totalIncome,
-        receivable: totalExpense,
-        sessions: totalSessions,
-        reschedules: 0 // Placeholder as we don't have reschedule tracking yet
-      });
+      (sessions || []).forEach((s: any) => {
+        // Tratar snake_case do paciente (supabase)
+        const patientData = {
+            firstName: s.patient?.first_name || '',
+            lastName: s.patient?.last_name || '',
+            phone: s.patient?.phone || ''
+        };
 
-      // Prepare Chart Data (Group by Day within range)
-      // For simplicity, we'll show the last 7 days of the selected range or the whole range if small
-      // Let's just show the days present in the data to avoid huge empty charts
-      const dataMap = new Map();
+        const sessionDate = s.date.split('T')[0];
+        
+        const sessionObj = {
+          id: s.id,
+          date: sessionDate,
+          time: s.date.split('T')[1]?.substring(0, 5) || '00:00',
+          status: s.status || 'pending',
+          patient: patientData
+        };
 
-      transactions?.forEach(t => {
-        const date = t.date;
-        if (!dataMap.has(date)) dataMap.set(date, { date, income: 0, sessions: 0 });
-        if (t.type === 'income') {
-          const entry = dataMap.get(date);
-          entry.income += Number(t.amount);
+        if (sessionDate === localTodayDate) {
+          todayList.push(sessionObj);
+        } else {
+          upcomingList.push(sessionObj);
         }
       });
 
-      sessions?.forEach(s => {
-        const date = s.date.split('T')[0];
-        if (!dataMap.has(date)) dataMap.set(date, { date, income: 0, sessions: 0 });
-        const entry = dataMap.get(date);
-        entry.sessions += 1;
-      });
+      todayList.sort((a, b) => a.time.localeCompare(b.time));
+      upcomingList.sort((a, b) => new Date(`${a.date}T${a.time}`).getTime() - new Date(`${b.date}T${b.time}`).getTime());
 
-      const chart = Array.from(dataMap.values())
-        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-        .map(item => ({
-          name: item.date.split('-').slice(1).reverse().join('/'), // DD/MM
-          income: item.income,
-          sessions: item.sessions
-        }));
-
-      setChartData(chart);
-
+      setTodaySessions(todayList);
+      setUpcomingSessions(upcomingList);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
@@ -109,10 +99,24 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const getStatusBadge = (status: string) => {
+    switch(status) {
+        case 'confirmed': return <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">Confirmado</span>;
+        case 'completed': return <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">Concluído</span>;
+        case 'cancelled': return <span className="px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full font-medium">Cancelado</span>;
+        default: return <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full font-medium">Pendente</span>;
+    }
+  };
+
+  const formatDateBR = (dateStr: string) => {
+      const [y, m, d] = dateStr.split('-');
+      return `${d}/${m}/${y}`;
+  };
+
   if (loading) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <Loader2 className="animate-spin text-[#6A8164]" size={48} />
+      <div className="flex h-full items-center justify-center min-h-screen bg-background">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#6A8164]"></div>
       </div>
     );
   }
@@ -121,129 +125,120 @@ const Dashboard: React.FC = () => {
     <div className="p-8 space-y-8 animate-fade-in bg-background min-h-screen">
       <div className="flex justify-between items-end">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">Dashboard</h2>
-          <p className="text-gray-500 text-sm mt-1">Acompanhe seus indicadores financeiros e de atendimento</p>
+          <h2 className="text-2xl font-bold text-gray-800">Minha Página</h2>
+          <p className="text-gray-500 text-sm mt-1">Acompanhe seus atendimentos do dia e próximos compromissos</p>
         </div>
-        <div className="flex gap-3 items-center">
-          <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-sm text-gray-600 shadow-sm">
-            <input
-              type="date"
-              value={dateFilter.startDate}
-              onChange={e => setDateFilter(prev => ({ ...prev, startDate: e.target.value }))}
-              className="outline-none text-gray-600 bg-transparent cursor-pointer"
-            />
-          </div>
-          <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-sm text-gray-600 shadow-sm">
-            <input
-              type="date"
-              value={dateFilter.endDate}
-              onChange={e => setDateFilter(prev => ({ ...prev, endDate: e.target.value }))}
-              className="outline-none text-gray-600 bg-transparent cursor-pointer"
-            />
-          </div>
-          <button
-            onClick={() => {
-              const headers = ['Data', 'Faturamento', 'Sessões'];
-              const csvContent = [
-                headers.join(','),
-                ...chartData.map(row => `${row.name},${row.income},${row.sessions}`)
-              ].join('\n');
-
-              const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-              const url = URL.createObjectURL(blob);
-              const link = document.createElement('a');
-              link.setAttribute('href', url);
-              link.setAttribute('download', `dashboard_export_${dateFilter.startDate}_${dateFilter.endDate}.csv`);
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-            }}
-            className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm transition-colors"
-          >
-            <Download size={16} />
-            Exportar
-          </button>
+        <div className="flex items-center gap-2 text-sm font-medium text-gray-600 bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-100">
+            <CalendarDays size={18} className="text-[#6A8164]" />
+            {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
-          <div className="p-3 bg-green-50 text-green-600 rounded-lg">
-            <DollarSign size={24} />
+      {unreadAnamnesis > 0 && (
+        <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center justify-between shadow-sm">
+            <div className="flex items-center gap-4">
+                <div className="bg-green-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-sm relative">
+                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white animate-pulse"></span>
+                    {unreadAnamnesis}
+                </div>
+                <div>
+                    <h3 className="text-green-800 font-bold text-lg">Nova Ficha Recebida!</h3>
+                    <p className="text-green-600 text-sm">Você tem {unreadAnamnesis} {unreadAnamnesis === 1 ? 'ficha de anamnese nova aguardando' : 'fichas de anamnese novas aguardando'} leitura.</p>
+                </div>
+            </div>
+            <a href="/?page=records" className="bg-white text-green-700 hover:bg-green-100 border border-green-200 px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-colors">
+                Ir para Prontuários
+            </a>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        {/* Atendimentos de Hoje */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col h-[600px]">
+          <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
+            <div className="flex items-center gap-3">
+                <div className="p-2 bg-green-50 rounded-lg text-green-600">
+                    <Clock size={20} />
+                </div>
+                <h3 className="text-lg font-bold text-gray-800">Atendimentos Hoje</h3>
+            </div>
+            <span className="bg-gray-100 text-gray-600 text-xs font-bold px-3 py-1 rounded-full">{todaySessions.length}</span>
           </div>
-          <div>
-            <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Faturamento</p>
-            <h3 className="text-2xl font-bold text-gray-800 mt-0.5">
-              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(kpi.income)}
-            </h3>
+
+          <div className="flex-1 overflow-y-auto pr-2 space-y-3">
+            {todaySessions.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-gray-400">
+                    <CheckCircle size={40} className="mb-3 opacity-30 text-green-500" />
+                    <p>Você não tem atendimentos agendados para hoje.</p>
+                </div>
+            ) : (
+                todaySessions.map((session) => (
+                    <div key={session.id} className="p-4 rounded-lg border border-gray-100 hover:border-green-200 hover:shadow-md transition-all bg-gray-50/50 flex items-center justify-between group">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-full bg-[#6A8164] text-white flex items-center justify-center font-bold text-lg shadow-sm group-hover:scale-105 transition-transform">
+                                {session.patient.firstName?.[0]}{session.patient.lastName?.[0]}
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-gray-800">{session.patient.firstName} {session.patient.lastName}</h4>
+                                <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
+                                    <Clock3 size={14} />
+                                    <span className="font-medium">{session.time}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex flex-col items-end gap-2">
+                            {getStatusBadge(session.status)}
+                        </div>
+                    </div>
+                ))
+            )}
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
-          <div className="p-3 bg-red-50 text-red-600 rounded-lg">
-            <DollarSign size={24} />
+        {/* Próximos Atendimentos */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col h-[600px]">
+          <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
+            <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
+                    <Calendar size={20} />
+                </div>
+                <h3 className="text-lg font-bold text-gray-800">Próximos Agendamentos</h3>
+            </div>
+            <span className="bg-gray-100 text-gray-600 text-xs font-bold px-3 py-1 rounded-full">{upcomingSessions.length}</span>
           </div>
-          <div>
-            <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Despesas</p>
-            <h3 className="text-2xl font-bold text-gray-800 mt-0.5">
-              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(kpi.receivable)}
-            </h3>
+
+          <div className="flex-1 overflow-y-auto pr-2 space-y-3">
+            {upcomingSessions.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-gray-400">
+                    <CalendarDays size={40} className="mb-3 opacity-30" />
+                    <p>Nenhum atendimento agendado para os próximos dias.</p>
+                </div>
+            ) : (
+                upcomingSessions.map((session) => (
+                    <div key={session.id} className="p-4 rounded-lg border border-gray-100 hover:border-blue-200 hover:shadow-md transition-all bg-white flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center font-bold text-sm">
+                                {session.patient.firstName?.[0]}{session.patient.lastName?.[0]}
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-gray-800 text-sm">{session.patient.firstName} {session.patient.lastName}</h4>
+                                <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                                    <span className="text-[#6A8164] font-medium">{formatDateBR(session.date)}</span>
+                                    <span>•</span>
+                                    <span>{session.time}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            {getStatusBadge(session.status)}
+                        </div>
+                    </div>
+                ))
+            )}
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
-          <div className="p-3 bg-purple-50 text-purple-600 rounded-lg">
-            <Calendar size={24} />
-          </div>
-          <div>
-            <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Sessões</p>
-            <h3 className="text-2xl font-bold text-gray-800 mt-0.5">{kpi.sessions}</h3>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
-          <div className="p-3 bg-orange-50 text-orange-600 rounded-lg">
-            <RefreshCw size={24} />
-          </div>
-          <div>
-            <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Reagendamentos</p>
-            <h3 className="text-2xl font-bold text-gray-800 mt-0.5">{kpi.reschedules}</h3>
-          </div>
-        </div>
-      </div>
-
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <h4 className="text-base font-bold text-gray-800 mb-6">Faturamentos (R$)</h4>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} dy={10} />
-                <YAxis tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
-                <Tooltip cursor={{ fill: '#f9fafb' }} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                <Bar dataKey="income" fill="#6A8164" radius={[4, 4, 0, 0]} barSize={20} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <h4 className="text-base font-bold text-gray-800 mb-6">Sessões</h4>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} dy={10} />
-                <YAxis tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
-                <Tooltip cursor={{ fill: '#f9fafb' }} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                <Bar dataKey="sessions" fill="#8b5cf6" radius={[4, 4, 0, 0]} barSize={20} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
       </div>
     </div>
   );

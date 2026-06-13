@@ -201,13 +201,31 @@ const Patients: React.FC<PatientsProps> = ({ onNavigate }) => {
               </div>
 
               <div className="border-t border-gray-100 pt-4 flex justify-between text-xs font-medium text-gray-500">
-                <button onClick={() => handleNavigateTo(Page.RECORDS)} className="flex items-center gap-2 hover:text-[#6A8164] transition-colors">
+                <button 
+                  onClick={() => {
+                    localStorage.setItem('selectedPatientId', patient.id);
+                    handleNavigateTo(Page.RECORDS);
+                  }} 
+                  className="flex items-center gap-2 hover:text-[#6A8164] transition-colors"
+                >
                   <FileText size={14} /> Prontuário
                 </button>
-                <button onClick={() => handleNavigateTo(Page.AGENDA)} className="flex items-center gap-2 hover:text-[#6A8164] transition-colors">
+                <button 
+                  onClick={() => {
+                    localStorage.setItem('selectedPatientId', patient.id);
+                    handleNavigateTo(Page.AGENDA);
+                  }} 
+                  className="flex items-center gap-2 hover:text-[#6A8164] transition-colors"
+                >
                   <Calendar size={14} /> Agendar
                 </button>
-                <button onClick={() => handleNavigateTo(Page.FINANCIAL)} className="flex items-center gap-2 hover:text-[#6A8164] transition-colors">
+                <button 
+                  onClick={() => {
+                    localStorage.setItem('selectedPatientId', patient.id);
+                    handleNavigateTo(Page.FINANCIAL);
+                  }} 
+                  className="flex items-center gap-2 hover:text-[#6A8164] transition-colors"
+                >
                   <DollarSign size={14} /> Financeiro
                 </button>
               </div>

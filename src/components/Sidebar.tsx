@@ -37,7 +37,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onNavigate }) => {
     { page: Page.AGENDA, label: 'Agenda', icon: Calendar },
     { page: Page.CONFIRMATIONS, label: 'Confirmações', icon: MessageCircle },
     { page: Page.FINANCIAL, label: 'Financeiro', icon: DollarSign },
-    { page: Page.DOCUMENTS, label: 'Documentos', icon: FileCheck },
+    { page: Page.TEMPLATES, label: 'Modelos de Fichas', icon: FileCheck },
   ];
 
   const adminEmails = ['gilcleberproducoes@gmail.com', 'gilcleberlocutor@gmail.com'];

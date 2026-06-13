@@ -2,13 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Patient, SessionRecord } from '@/types';
 import { storage } from '@/services/storage';
 import { supabase } from '@/services/supabaseClient';
-import { FileText, Plus, ChevronDown, Sparkles, Loader2, Mic, StopCircle } from 'lucide-react';
+import { FileText, Plus, ChevronDown, Sparkles, Loader2, Mic, StopCircle, Trash2 } from 'lucide-react';
 import { summarizeSessionNotes } from '@/services/geminiService';
-import AnamnesisModal from './AnamnesisModal';
+import AnamnesisViewer from './AnamnesisViewer';
 
 const Records: React.FC = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
-  const [selectedPatientId, setSelectedPatientId] = useState<string>('');
+  const [selectedPatientId, setSelectedPatientId] = useState<string>(() => {
+    return localStorage.getItem('selectedPatientId') || '';
+  });
   const [sessions, setSessions] = useState<SessionRecord[]>([]);
   const [isNewSessionModalOpen, setIsNewSessionModalOpen] = useState(false);
   const [sessionNotes, setSessionNotes] = useState('');
@@ -16,6 +18,7 @@ const Records: React.FC = () => {
   const [isSummarizing, setIsSummarizing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isAnamnesisModalOpen, setIsAnamnesisModalOpen] = useState(false);
+  const [patientAnamnesis, setPatientAnamnesis] = useState<any>(null);
 
   // Voice Recording State
   const [isRecording, setIsRecording] = useState(false);
@@ -27,11 +30,31 @@ const Records: React.FC = () => {
 
   useEffect(() => {
     if (selectedPatientId) {
+      localStorage.setItem('selectedPatientId', selectedPatientId);
       loadSessions(selectedPatientId);
+      loadAnamnesis(selectedPatientId);
     } else {
       setSessions([]);
+      setPatientAnamnesis(null);
     }
   }, [selectedPatientId]);
+
+  const loadAnamnesis = async (patientId: string) => {
+    try {
+      const { data } = await supabase
+        .from('anamnesis_forms')
+        .select('*')
+        .eq('patient_id', patientId)
+        .eq('status', 'completed')
+        .order('completed_at', { ascending: false })
+        .limit(1)
+        .single();
+        
+      setPatientAnamnesis(data);
+    } catch (e) {
+        setPatientAnamnesis(null);
+    }
+  };
 
   const loadPatients = async () => {
     try {
@@ -136,6 +159,20 @@ const Records: React.FC = () => {
   const getFormattedNotes = () => {
     if (recordMode === 'free') return sessionNotes;
     return `[ASSUNTO]: ${structuredData.subject}\n\n[HUMOR]: ${structuredData.mood}\n\n[DISCUSSÃO]: ${structuredData.discussion}\n\n[PLANO]: ${structuredData.plan}`;
+  };
+
+  const handleDeleteSession = async (sessionId: string) => {
+    if (!confirm('Tem certeza que deseja excluir este atendimento? Esta ação não pode ser desfeita.')) return;
+    
+    try {
+      const { error } = await supabase.from('sessions').delete().eq('id', sessionId);
+      if (error) throw error;
+      
+      await loadSessions(selectedPatientId);
+    } catch (error) {
+      console.error('Error deleting session:', error);
+      alert('Erro ao excluir atendimento.');
+    }
   };
 
   const handleSummarize = async () => {
@@ -252,13 +289,22 @@ const Records: React.FC = () => {
                 </div>
               </div>
               <div className="flex gap-2">
-                <button
-                  onClick={() => setIsAnamnesisModalOpen(true)}
-                  className="bg-white border border-[#6A8164] text-[#6A8164] hover:bg-[#6A8164] hover:text-white px-5 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition-all"
-                >
-                  <FileText size={18} />
-                  Ficha de Anamnese
-                </button>
+                {patientAnamnesis && (
+                  <button
+                    onClick={() => {
+                      setIsAnamnesisModalOpen(true);
+                      if (!patientAnamnesis.is_read) {
+                        supabase.from('anamnesis_forms').update({is_read: true}).eq('id', patientAnamnesis.id).then();
+                        setPatientAnamnesis({...patientAnamnesis, is_read: true});
+                      }
+                    }}
+                    className="bg-green-50 border border-green-200 text-green-700 hover:bg-green-100 px-5 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition-all relative"
+                  >
+                    {!patientAnamnesis.is_read && <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse border-2 border-white"></span>}
+                    <FileText size={18} />
+                    Ver Ficha Recebida
+                  </button>
+                )}
                 <button
                   onClick={() => setIsNewSessionModalOpen(true)}
                   className="bg-[#6A8164] hover:bg-[#586e53] text-white px-5 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition-all"
@@ -276,9 +322,18 @@ const Records: React.FC = () => {
                 </div>
               ) : (
                 sessions.map(session => (
-                  <div key={session.id} className="border-l-2 border-gray-200 pl-6 relative pb-6">
+                  <div key={session.id} className="border-l-2 border-gray-200 pl-6 relative pb-6 group">
                     <div className="absolute -left-[9px] top-0 w-4 h-4 bg-gray-200 rounded-full border-2 border-white"></div>
-                    <p className="text-sm text-gray-500 mb-1">{new Date(session.date).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                    <div className="flex justify-between items-start mb-2">
+                      <p className="text-sm font-medium text-gray-600">{new Date(session.date).toLocaleDateString('pt-BR', { timeZone: 'UTC', day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                      <button 
+                        onClick={() => handleDeleteSession(session.id)} 
+                        className="text-gray-400 hover:text-red-500 transition-colors p-1.5 rounded-full hover:bg-red-50 opacity-0 group-hover:opacity-100" 
+                        title="Excluir Atendimento"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                     <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
                       <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">{session.summary || session.notes}</p>
                       {session.tags && session.tags.length > 0 && (
@@ -444,9 +499,9 @@ const Records: React.FC = () => {
         </div>
       )}
 
-      {isAnamnesisModalOpen && selectedPatient && (
-        <AnamnesisModal
-          patientId={selectedPatient.id}
+      {isAnamnesisModalOpen && selectedPatient && patientAnamnesis && (
+        <AnamnesisViewer
+          form={patientAnamnesis}
           patientName={`${selectedPatient.firstName} ${selectedPatient.lastName}`}
           onClose={() => setIsAnamnesisModalOpen(false)}
         />
