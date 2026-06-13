@@ -144,7 +144,12 @@ const Agenda: React.FC = () => {
 
          } else {
             // Create new (handle recurrence)
-            const iterations = newAppointment.isRecurring ? newAppointment.recurrenceWeeks : 1;
+            // Ensure iterations is a valid number, fallback to 1
+            const iterations = newAppointment.isRecurring ? (Number(newAppointment.recurrenceWeeks) || 1) : 1;
+
+            if (iterations < 1) {
+                throw new Error("Número de semanas inválido");
+            }
 
             for (let i = 0; i < iterations; i++) {
                const date = new Date(`${newAppointment.date}T${newAppointment.time}:00`);
@@ -157,14 +162,17 @@ const Agenda: React.FC = () => {
             }
 
             const { error } = await supabase.from('sessions').insert(sessionsToInsert);
-            if (error) throw error;
+            if (error) {
+               console.error("Erro Supabase:", error);
+               throw error;
+            }
          }
 
          fetchAppointments();
          closeModal();
-      } catch (error) {
+      } catch (error: any) {
          console.error('Error saving appointment:', error);
-         alert('Erro ao agendar.');
+         alert(`Erro ao agendar: ${error.message || 'Falha no banco de dados'}`);
       }
    };
 
@@ -184,7 +192,7 @@ const Agenda: React.FC = () => {
       }
    };
 
-   const openModal = (appt?: Appointment) => {
+   const openModal = (appt?: Appointment, selectedDateStr?: string) => {
       if (appt) {
          setEditingId(appt.id);
          setNewAppointment({
@@ -197,9 +205,13 @@ const Agenda: React.FC = () => {
          });
       } else {
          setEditingId(null);
+         
+         // Use selectedDateStr if provided, otherwise today in local timezone (YYYY-MM-DD)
+         const defaultDate = selectedDateStr || new Date().toLocaleDateString('en-CA');
+         
          setNewAppointment({
             patientId: '',
-            date: new Date().toISOString().split('T')[0],
+            date: defaultDate,
             time: '08:00',
             status: 'pending',
             isRecurring: false,
@@ -301,9 +313,9 @@ const Agenda: React.FC = () => {
                                     key={day}
                                     className="flex flex-col items-center gap-1 min-h-[80px] group cursor-pointer hover:bg-gray-50 rounded-lg transition-colors p-1"
                                     onClick={() => {
-                                       const dateStr = new Date(currentDate.getFullYear(), currentDate.getMonth(), day).toISOString().split('T')[0];
-                                       setNewAppointment(prev => ({ ...prev, date: dateStr }));
-                                       openModal();
+                                       const d = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+                                       const dateStr = d.toLocaleDateString('en-CA');
+                                       openModal(undefined, dateStr);
                                     }}
                                  >
                                     <span className={`text-sm font-medium w-8 h-8 flex items-center justify-center rounded-full transition-colors ${isToday ? 'bg-[#6A8164] text-white' : 'text-gray-500'}`}>
@@ -385,14 +397,13 @@ const Agenda: React.FC = () => {
                                           const dayDate = new Date(currentDate);
                                           const dayDiff = dayIndex - dayDate.getDay();
                                           dayDate.setDate(dayDate.getDate() + dayDiff);
-                                          const dateStr = dayDate.toISOString().split('T')[0];
+                                          const dateStr = dayDate.toLocaleDateString('en-CA');
                                           const dayAppts = appointments.filter(a => a.date.startsWith(dateStr));
 
                                           return (
                                              <div key={dayIndex} className="relative h-full border-r border-gray-50 last:border-0"
                                                 onClick={() => {
-                                                   setNewAppointment(prev => ({ ...prev, date: dateStr }));
-                                                   openModal();
+                                                   openModal(undefined, dateStr);
                                                 }}
                                              >
                                                 {dayAppts.map(appt => {
