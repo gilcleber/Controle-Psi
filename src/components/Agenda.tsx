@@ -223,7 +223,7 @@ const Agenda: React.FC = () => {
 
       const cleanPhone = phone.replace(/\D/g, '');
       const formattedDate = new Date(date).toLocaleDateString('pt-BR');
-      const message = `Olá ${name}, confirmando nossa sessão de terapia para o dia ${formattedDate} às ${time}.`;
+      const message = `Olá ${name}, confirmando nosso atendimento de terapia para o dia ${formattedDate} às ${time}.`;
       const url = `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(message)}`;
 
       window.open(url, '_blank');
@@ -251,7 +251,7 @@ const Agenda: React.FC = () => {
          <div className="flex justify-between items-center mb-8">
             <div>
                <h2 className="text-2xl font-bold text-gray-800">Agenda</h2>
-               <p className="text-gray-500 text-sm mt-1">Gerencie suas sessões e compromissos de maneira prática</p>
+               <p className="text-gray-500 text-sm mt-1">Gerencie seus atendimentos e compromissos de maneira prática</p>
             </div>
          </div>
 
@@ -517,7 +517,7 @@ const Agenda: React.FC = () => {
                   onClick={() => openModal()}
                   className="w-full py-2.5 border border-gray-200 text-gray-600 rounded-lg text-sm hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 mb-6 font-medium"
                >
-                  <Plus size={16} /> Nova sessão
+                  <Plus size={16} /> Novo atendimento
                </button>
 
                <div className="space-y-4">
@@ -536,14 +536,14 @@ const Agenda: React.FC = () => {
             </div>
          </div >
 
-         {/* Modal Agendar Sessão */}
+         {/* Modal Agendar Atendimento */}
          {
             isModalOpen && (
                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
                   <div className="bg-white rounded-xl w-full max-w-md shadow-2xl animate-fade-in">
                      <div className="p-6 border-b border-gray-100 flex justify-between items-center">
                         <h3 className="text-lg font-bold text-gray-800">
-                           {editingId ? 'Editar Sessão' : 'Agendar Sessão'}
+                           {editingId ? 'Editar Atendimento' : 'Agendar Atendimento'}
                         </h3>
                         <button onClick={closeModal} className="text-gray-400 hover:text-gray-600">
                            <X size={20} />

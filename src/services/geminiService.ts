@@ -38,7 +38,7 @@ export const summarizeSessionNotes = async (rawNotes: string): Promise<string> =
       model: "gemini-1.5-flash", // Modelo rápido e econômico
       contents: `
 Você é um assistente de IA especializado em psicologia e documentação clínica.
-Sua tarefa é ler as anotações brutas de uma sessão de terapia abaixo e criar um resumo clínico profissional, conciso e estruturado (formato SOAP ou similar, mas focado em resumo).
+Sua tarefa é ler as anotações brutas de uma atendimento de terapia abaixo e criar um resumo clínico profissional, conciso e estruturado (formato SOAP ou similar, mas focado em resumo).
 Mantenha um tom formal e objetivo.
 
 Anotações brutas:
@@ -82,7 +82,7 @@ Anotações brutas:
     return "Resumo não disponível (formato de resposta inesperado).";
 
   } catch (error) {
-    console.error("Erro ao resumir sessão (summarizeSessionNotes):", error);
+    console.error("Erro ao resumir atendimento (summarizeSessionNotes):", error);
     return "Falha ao gerar resumo (erro de conexão com a IA).";
   }
 };

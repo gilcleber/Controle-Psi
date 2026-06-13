@@ -126,14 +126,14 @@ const AiAssistant: React.FC = () => {
             const { error } = await supabase.from('sessions').insert([newSession]);
             if (error) throw error;
 
-            alert('Sessão salva com sucesso!');
+            alert('Atendimento salva com sucesso!');
             setSessionNotes('');
             setAiSummary('');
             setTimer(0);
             setSelectedPatientId('');
         } catch (error) {
             console.error('Error saving session:', error);
-            alert('Erro ao salvar sessão.');
+            alert('Erro ao salvar atendimento.');
         }
     };
 
@@ -141,11 +141,11 @@ const AiAssistant: React.FC = () => {
         <div className="p-8 h-full flex flex-col bg-white animate-fade-in">
             <div className="mb-8">
                 <h2 className="text-2xl font-bold text-gray-800">Inteligência Artificial</h2>
-                <p className="text-gray-500">Use a IA para criar resumos das suas sessões de terapia</p>
+                <p className="text-gray-500">Use a IA para criar resumos das suas atendimentos de terapia</p>
             </div>
 
             <div className="flex-1 flex flex-col items-center max-w-3xl mx-auto w-full">
-                <h3 className="text-lg font-bold text-gray-800 mb-6">Use a Inteligência Artificial para fazer um resumo da sessão</h3>
+                <h3 className="text-lg font-bold text-gray-800 mb-6">Use a Inteligência Artificial para fazer um resumo da atendimento</h3>
 
                 <div className="w-full bg-white rounded-xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] border border-gray-100 p-8 mb-10">
                     <h4 className="text-xl font-bold text-gray-800 mb-1">Escolha o paciente</h4>
@@ -174,7 +174,7 @@ const AiAssistant: React.FC = () => {
                             {isRecording ? <StopCircle size={32} className="text-white" /> : <Mic size={32} className="text-white" />}
                         </button>
                         <div className="text-2xl font-bold text-gray-800 tracking-wider">{formatTime(timer)}</div>
-                        <p className="text-xs text-gray-500 mt-1">Tempo total da sessão</p>
+                        <p className="text-xs text-gray-500 mt-1">Tempo total da atendimento</p>
                     </div>
                 </div>
 
@@ -198,11 +198,11 @@ const AiAssistant: React.FC = () => {
                     <ul className="space-y-3 text-xs text-gray-500 leading-relaxed">
                         <li className="flex gap-2">
                             <span className="block w-1 h-1 rounded-full bg-gray-400 mt-1.5 flex-shrink-0"></span>
-                            Preferencialmente utilize o navegador <strong className="text-gray-700">Google Chrome</strong> para fazer a escuta da sua sessão.
+                            Preferencialmente utilize o navegador <strong className="text-gray-700">Google Chrome</strong> para fazer a escuta da sua atendimento.
                         </li>
                         <li className="flex gap-2">
                             <span className="block w-1 h-1 rounded-full bg-gray-400 mt-1.5 flex-shrink-0"></span>
-                            Para usar a Inteligência Artificial para fazer o resumo da sua sessão, você deve usar um celular ou um computador que <strong className="text-gray-700">não esteja na mesma chamada da sessão online com seu paciente</strong>. Isso é necessário para que a Inteligência Artificial possa escutar você e o seu paciente falando.
+                            Para usar a Inteligência Artificial para fazer o resumo da sua atendimento, você deve usar um celular ou um computador que <strong className="text-gray-700">não esteja na mesma chamada da atendimento online com seu paciente</strong>. Isso é necessário para que a Inteligência Artificial possa escutar você e o seu paciente falando.
                         </li>
                         <li className="flex gap-2">
                             <span className="block w-1 h-1 rounded-full bg-gray-400 mt-1.5 flex-shrink-0"></span>
@@ -210,7 +210,7 @@ const AiAssistant: React.FC = () => {
                         </li>
                         <li className="flex gap-2">
                             <span className="block w-1 h-1 rounded-full bg-gray-400 mt-1.5 flex-shrink-0"></span>
-                            A Inteligência Artificial não consegue ver a imagem ou vídeo, ou seja, se você ficar escutando o BEEP não vai ativar o vídeo da sua sessão.
+                            A Inteligência Artificial não consegue ver a imagem ou vídeo, ou seja, se você ficar escutando o BEEP não vai ativar o vídeo da sua atendimento.
                         </li>
                         <li className="flex gap-2">
                             <span className="block w-1 h-1 rounded-full bg-gray-400 mt-1.5 flex-shrink-0"></span>
@@ -218,27 +218,27 @@ const AiAssistant: React.FC = () => {
                         </li>
                         <li className="flex gap-2">
                             <span className="block w-1 h-1 rounded-full bg-gray-400 mt-1.5 flex-shrink-0"></span>
-                            Para preservar sua privacidade e a do seu paciente, a IA começa a escutar após você pressionar o botão microfone e termina quando a sessão finalizar ou quando você parar a gravação. Durante a sessão, caso você fique sem conexão de internet, você não terá prejuízo para receber o resumo da sessão.
+                            Para preservar sua privacidade e a do seu paciente, a IA começa a escutar após você pressionar o botão microfone e termina quando a atendimento finalizar ou quando você parar a gravação. Durante a atendimento, caso você fique sem conexão de internet, você não terá prejuízo para receber o resumo da atendimento.
                         </li>
                         <li className="flex gap-2">
                             <span className="block w-1 h-1 rounded-full bg-gray-400 mt-1.5 flex-shrink-0"></span>
-                            O tempo total da sessão será de no máximo 80 minutos.
+                            O tempo total da atendimento será de no máximo 80 minutos.
                         </li>
                         <li className="flex gap-2">
                             <span className="block w-1 h-1 rounded-full bg-gray-400 mt-1.5 flex-shrink-0"></span>
-                            Quando o cronômetro marcar 40 minutos ele ficará vermelho para informar que faltam 10 minutos para encerrar a sessão.
+                            Quando o cronômetro marcar 40 minutos ele ficará vermelho para informar que faltam 10 minutos para encerrar a atendimento.
                         </li>
                         <li className="flex gap-2">
                             <span className="block w-1 h-1 rounded-full bg-gray-400 mt-1.5 flex-shrink-0"></span>
-                            Caso você tenha uma sessão mais longa do que o normal, você terá uma <strong className="text-gray-700">tolerância de até 10 minutos</strong> após os 70 minutos da sessão para fazer isso sem que utilize seus créditos. Após os 80 segundos do início da sessão o crédito será cobrado do seu saldo.
+                            Caso você tenha uma atendimento mais longa do que o normal, você terá uma <strong className="text-gray-700">tolerância de até 10 minutos</strong> após os 70 minutos da atendimento para fazer isso sem que utilize seus créditos. Após os 80 segundos do início da atendimento o crédito será cobrado do seu saldo.
                         </li>
                         <li className="flex gap-2">
                             <span className="block w-1 h-1 rounded-full bg-gray-400 mt-1.5 flex-shrink-0"></span>
-                            Ao finalizar a sessão um resumo da sessão será disponibilizado na aba "Minhas Sessões", cerca de 3 a 5 minutos após o término da sessão. Procure pelo nome do paciente e a data que realizou essa sessão.
+                            Ao finalizar a atendimento um resumo da atendimento será disponibilizado na aba "Minhas Atendimentos", cerca de 3 a 5 minutos após o término da atendimento. Procure pelo nome do paciente e a data que realizou essa atendimento.
                         </li>
                         <li className="flex gap-2">
                             <span className="block w-1 h-1 rounded-full bg-gray-400 mt-1.5 flex-shrink-0"></span>
-                            Por questões de proteção dos dados a plataforma ControlePsi <strong className="text-gray-700">não grava e não armazena</strong> o áudio da sessão.
+                            Por questões de proteção dos dados a plataforma ControlePsi <strong className="text-gray-700">não grava e não armazena</strong> o áudio da atendimento.
                         </li>
                     </ul>
                 </div>

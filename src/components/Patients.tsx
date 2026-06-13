@@ -22,7 +22,11 @@ const Patients: React.FC<PatientsProps> = ({ onNavigate }) => {
     phone: '',
     email: '',
     status: 'ativo',
-    sessionPrice: 0
+    sessionPrice: 0,
+    birthDate: '',
+    religion: '',
+    medication: '',
+    sessionLink: ''
   });
 
   const [loading, setLoading] = useState(true);
@@ -97,7 +101,11 @@ const Patients: React.FC<PatientsProps> = ({ onNavigate }) => {
         phone: '',
         email: '',
         status: 'ativo',
-        sessionPrice: 150
+        sessionPrice: 150,
+        birthDate: '',
+        religion: '',
+        medication: '',
+        sessionLink: ''
       });
     }
     setIsModalOpen(true);
@@ -253,6 +261,8 @@ const Patients: React.FC<PatientsProps> = ({ onNavigate }) => {
                   <input
                     type="date"
                     className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#6A8164] focus:border-transparent transition-all"
+                    value={formData.birthDate || ''}
+                    onChange={e => setFormData({ ...formData, birthDate: e.target.value })}
                   />
                 </div>
               </div>
@@ -272,6 +282,8 @@ const Patients: React.FC<PatientsProps> = ({ onNavigate }) => {
                   <input
                     type="text"
                     className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#6A8164] focus:border-transparent transition-all"
+                    value={formData.religion || ''}
+                    onChange={e => setFormData({ ...formData, religion: e.target.value })}
                   />
                 </div>
               </div>
@@ -283,21 +295,25 @@ const Patients: React.FC<PatientsProps> = ({ onNavigate }) => {
                     type="text"
                     className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#6A8164] focus:border-transparent transition-all"
                     placeholder="Não definida"
+                    value={formData.medication || ''}
+                    onChange={e => setFormData({ ...formData, medication: e.target.value })}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Link para sessão</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Link para atendimento</label>
                   <input
                     type="text"
                     className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#6A8164] focus:border-transparent transition-all"
                     placeholder="Cole aqui o link"
+                    value={formData.sessionLink || ''}
+                    onChange={e => setFormData({ ...formData, sessionLink: e.target.value })}
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-5 items-center">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Valor por sessão (R$)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Valor por atendimento (R$)</label>
                   <input
                     type="number"
                     className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#6A8164] focus:border-transparent transition-all"

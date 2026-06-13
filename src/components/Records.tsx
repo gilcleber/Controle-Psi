@@ -4,6 +4,7 @@ import { storage } from '@/services/storage';
 import { supabase } from '@/services/supabaseClient';
 import { FileText, Plus, ChevronDown, Sparkles, Loader2, Mic, StopCircle } from 'lucide-react';
 import { summarizeSessionNotes } from '@/services/geminiService';
+import AnamnesisModal from './AnamnesisModal';
 
 const Records: React.FC = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -14,6 +15,7 @@ const Records: React.FC = () => {
   const [aiSummary, setAiSummary] = useState('');
   const [isSummarizing, setIsSummarizing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isAnamnesisModalOpen, setIsAnamnesisModalOpen] = useState(false);
 
   // Voice Recording State
   const [isRecording, setIsRecording] = useState(false);
@@ -197,7 +199,7 @@ const Records: React.FC = () => {
       setAiSummary('');
     } catch (error: any) {
       console.error('Error saving session (catch block):', error);
-      alert(`Erro ao salvar sessão: ${error.message || 'Erro desconhecido'}`);
+      alert(`Erro ao salvar atendimento: ${error.message || 'Erro desconhecido'}`);
     } finally {
       setIsSaving(false);
     }
@@ -249,19 +251,28 @@ const Records: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <button
-                onClick={() => setIsNewSessionModalOpen(true)}
-                className="bg-[#6A8164] hover:bg-[#586e53] text-white px-5 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition-all"
-              >
-                <Plus size={18} />
-                Nova sessão
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setIsAnamnesisModalOpen(true)}
+                  className="bg-white border border-[#6A8164] text-[#6A8164] hover:bg-[#6A8164] hover:text-white px-5 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition-all"
+                >
+                  <FileText size={18} />
+                  Ficha de Anamnese
+                </button>
+                <button
+                  onClick={() => setIsNewSessionModalOpen(true)}
+                  className="bg-[#6A8164] hover:bg-[#586e53] text-white px-5 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition-all"
+                >
+                  <Plus size={18} />
+                  Novo atendimento
+                </button>
+              </div>
             </div>
 
             <div className="flex-1 overflow-y-auto space-y-6">
               {sessions.length === 0 ? (
                 <div className="text-center text-gray-400 py-10">
-                  Nenhuma sessão registrada para este paciente.
+                  Nenhum atendimento registrado para este paciente.
                 </div>
               ) : (
                 sessions.map(session => (
@@ -292,7 +303,7 @@ const Records: React.FC = () => {
           <div className="bg-white rounded-xl w-full max-w-4xl shadow-2xl h-[90vh] flex flex-col">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-xl">
               <div>
-                <h3 className="text-xl font-bold text-gray-800">Nova Sessão</h3>
+                <h3 className="text-xl font-bold text-gray-800">Novo Atendimento</h3>
                 <p className="text-sm text-gray-500">{selectedPatient?.firstName} {selectedPatient?.lastName} - {new Date().toLocaleDateString()}</p>
               </div>
               <button onClick={() => setIsNewSessionModalOpen(false)} className="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
@@ -334,11 +345,11 @@ const Records: React.FC = () => {
                   <>
                     <textarea
                       className="flex-1 w-full border border-gray-300 rounded-lg p-4 focus:ring-2 focus:ring-[#6A8164] focus:border-transparent resize-none text-base leading-relaxed"
-                      placeholder="Digite aqui ou grave o áudio da sessão..."
+                      placeholder="Digite aqui ou grave o áudio do atendimento..."
                       value={sessionNotes}
                       onChange={(e) => setSessionNotes(e.target.value)}
                     />
-                    <p className="text-xs text-gray-400 mt-2">Dica: Use o botão de gravar para transcrever a sessão em tempo real.</p>
+                    <p className="text-xs text-gray-400 mt-2">Dica: Use o botão de gravar para transcrever o atendimento em tempo real.</p>
                   </>
                 ) : (
                   <div className="flex-1 overflow-y-auto space-y-4 pr-2">
@@ -367,7 +378,7 @@ const Records: React.FC = () => {
                         rows={4}
                         value={structuredData.discussion}
                         onChange={(e) => setStructuredData({ ...structuredData, discussion: e.target.value })}
-                        placeholder="Detalhes da sessão e intervenções realizadas..."
+                        placeholder="Detalhes do atendimento e intervenções realizadas..."
                       />
                     </div>
                     <div>
@@ -426,11 +437,19 @@ const Records: React.FC = () => {
                 className="px-6 py-2.5 bg-[#6A8164] text-white rounded-lg hover:bg-[#586e53] transition-colors font-medium shadow-sm flex items-center gap-2"
               >
                 {isSaving && <Loader2 size={16} className="animate-spin" />}
-                Salvar Sessão
+                Salvar Atendimento
               </button>
             </div>
           </div>
         </div>
+      )}
+
+      {isAnamnesisModalOpen && selectedPatient && (
+        <AnamnesisModal
+          patientId={selectedPatient.id}
+          patientName={`${selectedPatient.firstName} ${selectedPatient.lastName}`}
+          onClose={() => setIsAnamnesisModalOpen(false)}
+        />
       )}
     </div>
   );

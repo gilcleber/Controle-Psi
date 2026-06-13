@@ -10,7 +10,7 @@ export default function DocumentGenerator() {
 
     // Receipt State
     const [amount, setAmount] = useState('');
-    const [serviceDescription, setServiceDescription] = useState('Sessão de Psicoterapia');
+    const [serviceDescription, setServiceDescription] = useState('Atendimento de Psicoterapia');
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
 
     // Certificate State
@@ -127,7 +127,7 @@ export default function DocumentGenerator() {
                                         Modelo Acompanhamento
                                     </button>
                                     <button
-                                        onClick={() => setCertificateText(`Declaro para os devidos fins que ${selectedPatient ? selectedPatient.firstName + ' ' + selectedPatient.lastName : '__________________'} compareceu à sessão de psicoterapia nesta data, no período de ____ às ____.`)}
+                                        onClick={() => setCertificateText(`Declaro para os devidos fins que ${selectedPatient ? selectedPatient.firstName + ' ' + selectedPatient.lastName : '__________________'} compareceu à atendimento de psicoterapia nesta data, no período de ____ às ____.`)}
                                         className="text-xs text-primary hover:underline"
                                     >
                                         Modelo Comparecimento

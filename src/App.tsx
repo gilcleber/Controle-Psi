@@ -14,6 +14,7 @@ import AdminPanel from '@/components/AdminPanel';
 import LicenseLockScreen from '@/components/LicenseLockScreen';
 import ProfileCompletion from '@/components/ProfileCompletion';
 import DocumentGenerator from './components/DocumentGenerator';
+import AnamnesisForm from './components/AnamnesisForm';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { BrainCircuit, LogOut } from 'lucide-react';
 
@@ -120,6 +121,10 @@ const AppContent = () => {
 };
 
 const App: React.FC = () => {
+  if (window.location.pathname === '/anamnese') {
+    return <AnamnesisForm />;
+  }
+
   return (
     <AuthProvider>
       <AppContent />

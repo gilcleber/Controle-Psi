@@ -19,6 +19,10 @@ export interface Patient {
     cpf: string;
     status: 'ativo' | 'inativo' | 'retorno';
     sessionPrice: number;
+    birthDate?: string;
+    religion?: string;
+    medication?: string;
+    sessionLink?: string;
 }
 
 export interface SessionRecord {

@@ -56,7 +56,7 @@ const Confirmations: React.FC = () => {
     const handleConfirm = async (id: string) => {
         // Logic to update status in DB (would need a status column in sessions table)
         // For now, we'll just alert
-        alert(`Confirmar sessão ${id} (Implementar atualização de status no banco)`);
+        alert(`Confirmar atendimento ${id} (Implementar atualização de status no banco)`);
     };
 
     return (
@@ -64,7 +64,7 @@ const Confirmations: React.FC = () => {
             <div className="mb-8 flex justify-between items-end">
                 <div>
                     <h2 className="text-2xl font-bold text-gray-800">Confirmações</h2>
-                    <p className="text-gray-500 text-sm mt-1">Envie lembretes e confirmações de sessões para seus pacientes</p>
+                    <p className="text-gray-500 text-sm mt-1">Envie lembretes e confirmações de atendimentos para seus pacientes</p>
                 </div>
                 <div className="flex gap-2">
                     {/* Fake Data buttons removed */}
@@ -72,9 +72,9 @@ const Confirmations: React.FC = () => {
             </div>
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 mb-8">
-                <h3 className="text-lg font-bold text-gray-800 mb-6">Próximas sessões</h3>
+                <h3 className="text-lg font-bold text-gray-800 mb-6">Próximas atendimentos</h3>
 
-                <p className="text-sm text-gray-500 mb-4">Deslize a barra abaixo para filtrar os pacientes com sessões nos próximos dias</p>
+                <p className="text-sm text-gray-500 mb-4">Deslize a barra abaixo para filtrar os pacientes com atendimentos nos próximos dias</p>
 
                 <div className="flex items-center gap-4 mb-2">
                     <span className="text-gray-400 text-xs">&lt;</span>
@@ -98,8 +98,8 @@ const Confirmations: React.FC = () => {
                     </div>
                 ) : sessions.length === 0 ? (
                     <div className="text-center py-12">
-                        <h4 className="text-gray-600 font-medium mb-2">Não há sessões para confirmar</h4>
-                        <p className="text-gray-400 text-sm">Todas as próximas sessões já foram confirmadas ou não existem agendamentos para os próximos dias.</p>
+                        <h4 className="text-gray-600 font-medium mb-2">Não há atendimentos para confirmar</h4>
+                        <p className="text-gray-400 text-sm">Todas as próximas atendimentos já foram confirmadas ou não existem agendamentos para os próximos dias.</p>
                     </div>
                 ) : (
                     <div className="space-y-4">
@@ -123,7 +123,7 @@ const Confirmations: React.FC = () => {
                                     <button className="p-2 text-green-600 hover:bg-green-50 rounded-full transition-colors" title="Confirmar Presença">
                                         <Check size={20} />
                                     </button>
-                                    <button className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors" title="Cancelar Sessão">
+                                    <button className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors" title="Cancelar Atendimento">
                                         <X size={20} />
                                     </button>
                                     <button className="p-2 text-[#6A8164] hover:bg-[#6A8164]/10 rounded-full transition-colors" title="Enviar Lembrete WhatsApp">

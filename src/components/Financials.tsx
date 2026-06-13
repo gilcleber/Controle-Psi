@@ -349,7 +349,7 @@ const Financials: React.FC = () => {
                         <input
                            type="text"
                            className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#6A8164] focus:border-transparent"
-                           placeholder="Ex: Pagamento de sessão"
+                           placeholder="Ex: Pagamento de atendimento"
                            value={formData.description}
                            onChange={e => setFormData({ ...formData, description: e.target.value })}
                         />
