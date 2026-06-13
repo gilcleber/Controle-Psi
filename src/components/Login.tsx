@@ -213,7 +213,7 @@ export default function Login() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-primary-dark text-white py-3 rounded-lg font-medium hover:bg-primary transition-colors flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                            className="w-full bg-[#5B7065] text-white py-3 rounded-lg font-medium hover:bg-[#829A8F] transition-colors flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                         >
                             {loading && <Loader2 size={18} className="animate-spin" />}
                             {isSignUp ? 'Criar Conta' : 'Entrar'}
