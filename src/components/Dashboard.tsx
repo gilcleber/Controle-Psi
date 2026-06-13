@@ -70,17 +70,24 @@ const Dashboard: React.FC = () => {
             phone: s.patient?.phone || ''
         };
 
-        const sessionDate = s.date.split('T')[0];
+        let localDate = s.date;
+        let localTime = '00:00';
+
+        if (s.date.includes('T')) {
+            const dateObj = new Date(s.date);
+            localDate = dateObj.toLocaleDateString('en-CA');
+            localTime = dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        }
         
         const sessionObj = {
           id: s.id,
-          date: sessionDate,
-          time: s.date.split('T')[1]?.substring(0, 5) || '00:00',
+          date: localDate,
+          time: localTime,
           status: s.status || 'pending',
           patient: patientData
         };
 
-        if (sessionDate === localTodayDate) {
+        if (localDate === localTodayDate) {
           todayList.push(sessionObj);
         } else {
           upcomingList.push(sessionObj);

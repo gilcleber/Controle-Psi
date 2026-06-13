@@ -75,10 +75,22 @@ const Agenda: React.FC = () => {
 
          if (error) throw error;
 
-         const formatted: Appointment[] = (data || []).map((item: any) => ({
-            id: item.id,
-            date: item.date.split('T')[0],
-            time: item.date.split('T')[1]?.substring(0, 5) || '00:00',
+         const formatted: Appointment[] = (data || []).map((item: any) => {
+            let localDate = item.date;
+            let localTime = '00:00';
+
+            if (item.date.includes('T')) {
+               const dateObj = new Date(item.date);
+               localDate = dateObj.toLocaleDateString('en-CA');
+               localTime = dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            } else {
+               localDate = item.date.split('T')[0];
+            }
+
+            return {
+               id: item.id,
+               date: localDate,
+               time: localTime,
             patient_id: item.patient_id,
             patient: item.patient,
             notes: item.notes,
