@@ -95,10 +95,17 @@ export default function AnamnesisForm() {
             const anamnesisAnswers: Record<string, any> = {};
 
             Object.keys(formData).forEach(key => {
+                let value = formData[key];
+                
+                // Tratar datas vazias e strings vazias para não quebrar o banco de dados
+                if (value === '') {
+                    value = null;
+                }
+
                 if (standardFields.includes(key)) {
-                    patientData[key] = formData[key];
+                    patientData[key] = value;
                 } else {
-                    anamnesisAnswers[key] = formData[key];
+                    anamnesisAnswers[key] = value;
                 }
             });
 
