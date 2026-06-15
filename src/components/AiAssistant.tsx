@@ -203,22 +203,22 @@ const AiAssistant: React.FC = () => {
 
                 <div className="w-full text-left">
                     <h4 className="font-bold text-gray-800 mb-4 text-sm">Como funciona o assistente de IA:</h4>
-                    <ul className="space-y-3 text-xs text-gray-500 leading-relaxed">
-                        <li className="flex gap-2">
-                            <span className="block w-1 h-1 rounded-full bg-[#6A8164] mt-1.5 flex-shrink-0"></span>
-                            Você pode usar o seu <strong className="text-gray-700">celular</strong> para gravar o áudio da sessão, deixando o computador livre para o atendimento online por vídeo.
+                    <ul className="space-y-4 text-xs text-gray-500 leading-relaxed">
+                        <li className="flex gap-3 items-start">
+                            <span className="block w-1.5 h-1.5 rounded-full bg-[#6A8164] mt-1.5 flex-shrink-0"></span>
+                            <span>Você pode usar o seu <strong className="text-gray-700">celular</strong> para gravar o áudio da sessão, deixando o computador livre para o atendimento online por vídeo.</span>
                         </li>
-                        <li className="flex gap-2">
-                            <span className="block w-1 h-1 rounded-full bg-[#6A8164] mt-1.5 flex-shrink-0"></span>
-                            A gravação começa ao clicar no microfone e termina apenas quando você clicar no botão de parar. O cronômetro não se fechará sozinho.
+                        <li className="flex gap-3 items-start">
+                            <span className="block w-1.5 h-1.5 rounded-full bg-[#6A8164] mt-1.5 flex-shrink-0"></span>
+                            <span>A gravação começa ao clicar no microfone e termina apenas quando você clicar no botão de parar. O cronômetro não se fechará sozinho.</span>
                         </li>
-                        <li className="flex gap-2">
-                            <span className="block w-1 h-1 rounded-full bg-[#6A8164] mt-1.5 flex-shrink-0"></span>
-                            Após a sessão, clique em <strong className="text-[#6A8164]">Salvar e Gerar Resumo</strong>. O sistema processará o áudio, criará um resumo clínico profissional e o salvará **automaticamente no Prontuário do paciente**.
+                        <li className="flex gap-3 items-start">
+                            <span className="block w-1.5 h-1.5 rounded-full bg-[#6A8164] mt-1.5 flex-shrink-0"></span>
+                            <span>Após a sessão, clique em <strong className="text-[#6A8164]">Salvar e Gerar Resumo</strong>. O sistema processará o áudio, criará um resumo clínico profissional e o salvará <strong className="text-gray-700">automaticamente no Prontuário do paciente</strong>.</span>
                         </li>
-                        <li className="flex gap-2">
-                            <span className="block w-1 h-1 rounded-full bg-[#6A8164] mt-1.5 flex-shrink-0"></span>
-                            Privacidade garantida: O áudio da sessão <strong className="text-red-500">não é gravado permanentemente e nem armazenado</strong>. Ele é apenas processado momentaneamente para gerar o texto e logo em seguida é descartado.
+                        <li className="flex gap-3 items-start">
+                            <span className="block w-1.5 h-1.5 rounded-full bg-[#6A8164] mt-1.5 flex-shrink-0"></span>
+                            <span>Privacidade garantida: O áudio da sessão <strong className="text-red-500">não é gravado permanentemente e nem armazenado</strong>. Ele é apenas processado momentaneamente para gerar o texto e logo em seguida é descartado.</span>
                         </li>
                     </ul>
                 </div>

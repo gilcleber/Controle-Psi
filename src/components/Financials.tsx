@@ -42,7 +42,14 @@ const Financials: React.FC = () => {
 
    useEffect(() => {
       fetchTransactions();
-      loadPatients();
+      loadPatients().then(() => {
+         const preSelectedPatientId = localStorage.getItem('selectedPatientId');
+         if (preSelectedPatientId) {
+            setFormData(prev => ({ ...prev, patient_id: preSelectedPatientId }));
+            setIsModalOpen(true);
+            localStorage.removeItem('selectedPatientId');
+         }
+      });
    }, [dateFilter]);
 
    const loadPatients = async () => {

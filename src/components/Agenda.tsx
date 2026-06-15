@@ -37,7 +37,14 @@ const Agenda: React.FC = () => {
 
    useEffect(() => {
       fetchAppointments();
-      loadPatients();
+      loadPatients().then(() => {
+         const preSelectedPatientId = localStorage.getItem('selectedPatientId');
+         if (preSelectedPatientId) {
+            setNewAppointment(prev => ({ ...prev, patientId: preSelectedPatientId }));
+            setIsModalOpen(true);
+            localStorage.removeItem('selectedPatientId');
+         }
+      });
    }, [currentDate, view]);
 
    const loadPatients = async () => {

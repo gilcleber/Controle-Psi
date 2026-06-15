@@ -176,7 +176,7 @@ export default function AnamnesisForm() {
                         <img 
                             src={template.logo_url} 
                             alt="Banner do Consultório" 
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-contain"
                             onError={(e) => (e.currentTarget.style.display = 'none')}
                         />
                     </div>
@@ -213,12 +213,22 @@ export default function AnamnesisForm() {
 
                             {field.type === 'text' || field.type === 'email' || field.type === 'date' ? (
                                 <input
-                                    type={field.type}
+                                    type={field.name === 'phone' ? 'tel' : field.type}
                                     required={field.required}
                                     className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:border-transparent transition-all"
                                     style={{ '--tw-ring-color': themeColor } as React.CSSProperties}
                                     value={formData[field.name] || ''}
-                                    onChange={(e) => handleChange(field.name, e.target.value)}
+                                    onChange={(e) => {
+                                        let val = e.target.value;
+                                        if (field.name === 'phone') {
+                                            // Allow only digits, parens, dash, space, plus
+                                            val = val.replace(/[^\d()+\-\s]/g, '');
+                                        } else if (field.name === 'cpf') {
+                                            // Allow only digits, dots, dashes
+                                            val = val.replace(/[^\d.-]/g, '');
+                                        }
+                                        handleChange(field.name, val);
+                                    }}
                                 />
                             ) : field.type === 'textarea' ? (
                                 <textarea
