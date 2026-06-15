@@ -98,7 +98,8 @@ const Agenda: React.FC = () => {
             patient: item.patient,
             notes: item.notes,
             status: item.status || 'pending'
-         }));
+         };
+      });
 
          setAppointments(formatted);
       } catch (error) {
