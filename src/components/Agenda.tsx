@@ -77,12 +77,15 @@ const Agenda: React.FC = () => {
 
          const formatted: Appointment[] = (data || []).map((item: any) => {
             let localDate = item.date;
-            let localTime = '00:00';
+            let localTime = item.time || '00:00'; // Usa a nova coluna 'time'
 
             if (item.date.includes('T')) {
                const dateObj = new Date(item.date);
                localDate = dateObj.toLocaleDateString('en-CA');
-               localTime = dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+               // Se não houver a coluna time preenchida, tentamos extrair da data antiga para retrocompatibilidade
+               if (!item.time) {
+                   localTime = dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+               }
             } else {
                localDate = item.date.split('T')[0];
             }
@@ -138,17 +141,17 @@ const Agenda: React.FC = () => {
             patient_id: newAppointment.patientId,
             user_id: user.id,
             notes: 'Agendamento',
-            status: newAppointment.status
+            status: newAppointment.status,
+            time: newAppointment.time // Salva na nova coluna
          };
 
          if (editingId) {
             // Update existing
-            const dateTime = `${newAppointment.date}T${newAppointment.time}:00`;
             const { error } = await supabase
                .from('sessions')
                .update({
                   ...baseSession,
-                  date: dateTime
+                  date: newAppointment.date
                })
                .eq('id', editingId);
 
@@ -163,13 +166,14 @@ const Agenda: React.FC = () => {
                 throw new Error("Número de semanas inválido");
             }
 
-            for (let i = 0; i < iterations; i++) {
-               const date = new Date(`${newAppointment.date}T${newAppointment.time}:00`);
+             for (let i = 0; i < iterations; i++) {
+               const date = new Date(`${newAppointment.date}T12:00:00`); // Meio dia para evitar problemas de fuso
                date.setDate(date.getDate() + (i * 7)); // Add weeks
 
                sessionsToInsert.push({
                   ...baseSession,
-                  date: date.toISOString()
+                  date: date.toLocaleDateString('en-CA'), // Salva apenas YYYY-MM-DD
+                  time: newAppointment.time
                });
             }
 

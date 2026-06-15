@@ -29,7 +29,7 @@ const Confirmations: React.FC = () => {
 
             const { data, error } = await supabase
                 .from('sessions')
-                .select('*, patient:patients(*)')
+                .select('id, date, time, status, patient:patients(*)')
                 .gte('date', today.toISOString())
                 .lte('date', futureDate.toISOString())
                 .order('date', { ascending: true });
@@ -37,13 +37,21 @@ const Confirmations: React.FC = () => {
             if (error) throw error;
 
             // Transform data to match interface (handling potential missing fields)
-            const formatted: SessionToConfirm[] = (data || []).map((item: any) => ({
-                id: item.id,
-                date: item.date.split('T')[0],
-                time: item.date.split('T')[1]?.substring(0, 5) || '00:00',
-                patient: item.patient,
-                status: item.status || 'pending' // Assuming a status field exists or defaulting
-            }));
+            const formatted: SessionToConfirm[] = (data || []).map((item: any) => {
+                let sessionTime = item.time || '00:00';
+                if (!item.time && item.date.includes('T')) {
+                    const dateObj = new Date(item.date);
+                    sessionTime = dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                }
+
+                return {
+                    id: item.id,
+                    date: item.date.split('T')[0],
+                    time: sessionTime,
+                    patient: item.patient,
+                    status: item.status || 'pending'
+                };
+            });
 
             setSessions(formatted);
         } catch (error) {

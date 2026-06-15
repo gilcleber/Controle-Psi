@@ -39,7 +39,7 @@ const Dashboard: React.FC = () => {
 
       const { data: sessions, error } = await supabase
         .from('sessions')
-        .select('id, date, status, patient:patients(first_name, last_name, phone)')
+        .select('id, date, time, status, patient:patients(first_name, last_name, phone)')
         .eq('user_id', user.id)
         .gte('date', localTodayDate)
         .lte('date', localFutureDate + 'T23:59:59')
@@ -71,12 +71,14 @@ const Dashboard: React.FC = () => {
         };
 
         let localDate = s.date;
-        let localTime = '00:00';
+        let localTime = s.time || '00:00';
 
         if (s.date.includes('T')) {
             const dateObj = new Date(s.date);
             localDate = dateObj.toLocaleDateString('en-CA');
-            localTime = dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            if (!s.time) {
+               localTime = dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            }
         }
         
         const sessionObj = {
