@@ -108,13 +108,41 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    switch(status) {
-        case 'confirmed': return <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">Confirmado</span>;
-        case 'completed': return <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">Concluído</span>;
-        case 'cancelled': return <span className="px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full font-medium">Cancelado</span>;
-        default: return <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full font-medium">Pendente</span>;
-    }
+  const handleStatusChange = async (id: string, newStatus: string) => {
+      try {
+          const { error } = await supabase.from('sessions').update({ status: newStatus }).eq('id', id);
+          if (error) throw error;
+          
+          // Update local state without full refetch for better UX
+          setTodaySessions(prev => prev.map(s => s.id === id ? { ...s, status: newStatus } : s));
+          setUpcomingSessions(prev => prev.map(s => s.id === id ? { ...s, status: newStatus } : s));
+      } catch (err) {
+          console.error("Erro ao atualizar status:", err);
+          alert("Erro ao atualizar o status do agendamento.");
+      }
+  };
+
+  const renderStatusDropdown = (session: DashboardSession) => {
+    const bgColors = {
+        'confirmed': 'bg-green-100 text-green-700',
+        'completed': 'bg-blue-100 text-blue-700',
+        'cancelled': 'bg-red-100 text-red-700',
+        'pending': 'bg-yellow-100 text-yellow-700'
+    };
+    const currentColor = bgColors[session.status as keyof typeof bgColors] || bgColors.pending;
+
+    return (
+        <select 
+            value={session.status}
+            onChange={(e) => handleStatusChange(session.id, e.target.value)}
+            className={`px-3 py-1 text-xs rounded-full font-medium border border-transparent cursor-pointer hover:border-gray-300 focus:ring-0 ${currentColor} outline-none text-center transition-colors`}
+        >
+            <option value="pending" className="bg-white text-gray-800">Pendente</option>
+            <option value="confirmed" className="bg-white text-gray-800">Confirmado</option>
+            <option value="completed" className="bg-white text-gray-800">Concluído</option>
+            <option value="cancelled" className="bg-white text-gray-800">Cancelado</option>
+        </select>
+    );
   };
 
   const formatDateBR = (dateStr: string) => {
@@ -197,7 +225,7 @@ const Dashboard: React.FC = () => {
                             </div>
                         </div>
                         <div className="flex flex-col items-end gap-2">
-                            {getStatusBadge(session.status)}
+                            {renderStatusDropdown(session)}
                         </div>
                     </div>
                 ))
@@ -239,8 +267,8 @@ const Dashboard: React.FC = () => {
                                 </div>
                             </div>
                         </div>
-                        <div>
-                            {getStatusBadge(session.status)}
+                        <div className="flex flex-col items-end gap-2">
+                            {renderStatusDropdown(session)}
                         </div>
                     </div>
                 ))

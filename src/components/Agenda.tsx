@@ -426,9 +426,10 @@ const Agenda: React.FC = () => {
                                                 {dayAppts.map(appt => {
                                                    const hour = parseInt(appt.time?.split(':')[0] || '0');
                                                    const minute = parseInt(appt.time?.split(':')[1] || '0');
-                                                   const top = (hour - 8) * 80 + (minute / 60) * 80;
-
-                                                   if (hour < 8 || hour > 20) return null;
+                                                   let visualHour = hour;
+                                                   if (visualHour < 8) visualHour = 8;
+                                                   if (visualHour > 20) visualHour = 20;
+                                                   const top = (visualHour - 8) * 80 + (minute / 60) * 80;
 
                                                    return (
                                                       <div
@@ -464,9 +465,10 @@ const Agenda: React.FC = () => {
                                        {appointments.filter(a => a.date.startsWith(currentDate.toISOString().split('T')[0])).map(appt => {
                                           const hour = parseInt(appt.time?.split(':')[0] || '0');
                                           const minute = parseInt(appt.time?.split(':')[1] || '0');
-                                          const top = (hour - 8) * 80 + (minute / 60) * 80;
-
-                                          if (hour < 8 || hour > 20) return null;
+                                          let visualHour = hour;
+                                          if (visualHour < 8) visualHour = 8;
+                                          if (visualHour > 20) visualHour = 20;
+                                          const top = (visualHour - 8) * 80 + (minute / 60) * 80;
 
                                           return (
                                              <div
