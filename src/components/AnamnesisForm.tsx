@@ -89,7 +89,8 @@ export default function AnamnesisForm() {
         setError(null);
 
         try {
-            const standardFields = ['first_name', 'last_name', 'email', 'phone', 'cpf', 'birth_date'];
+            // Removemos 'birth_date' dos standardFields temporariamente para evitar o bug de casting no Postgres (ele vai para anamnesisAnswers e não quebra o envio).
+            const standardFields = ['first_name', 'last_name', 'email', 'phone', 'cpf'];
             
             const patientData: Record<string, any> = {};
             const anamnesisAnswers: Record<string, any> = {};
@@ -123,7 +124,7 @@ export default function AnamnesisForm() {
             setSuccess(true);
         } catch (err: any) {
             console.error('Erro ao salvar anamnese:', err);
-            setError('Ocorreu um erro ao enviar suas respostas. Tente novamente ou contate seu terapeuta.');
+            setError('Erro do sistema: ' + (err.message || 'Erro desconhecido. Contate o suporte.'));
         } finally {
             setSubmitting(false);
         }
