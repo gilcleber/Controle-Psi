@@ -19,40 +19,16 @@ const AiAssistant: React.FC = () => {
     const [isRecording, setIsRecording] = useState(false);
     const [timer, setTimer] = useState(0);
     const [sessionNotes, setSessionNotes] = useState('');
+    const [isTranscribing, setIsTranscribing] = useState(false);
     const [isSummarizing, setIsSummarizing] = useState(false);
     const [aiSummary, setAiSummary] = useState('');
 
-    const recognitionRef = useRef<any>(null);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const audioChunksRef = useRef<BlobPart[]>([]);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         loadPatients();
-
-        // Initialize Speech Recognition
-        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-            const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-            recognitionRef.current = new SpeechRecognition();
-            recognitionRef.current.continuous = true;
-            recognitionRef.current.interimResults = true;
-            recognitionRef.current.lang = 'pt-BR';
-
-            recognitionRef.current.onresult = (event: any) => {
-                let finalTranscript = '';
-                for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    if (event.results[i].isFinal) {
-                        finalTranscript += event.results[i][0].transcript;
-                    }
-                }
-                if (finalTranscript) {
-                    setSessionNotes(prev => prev + (prev ? ' ' : '') + finalTranscript);
-                }
-            };
-
-            recognitionRef.current.onerror = (event: any) => {
-                console.error('Speech recognition error', event.error);
-                stopRecording();
-            };
-        }
     }, []);
 
     const loadPatients = async () => {
@@ -64,33 +40,73 @@ const AiAssistant: React.FC = () => {
         }
     };
 
-    const startRecording = () => {
+    const startRecording = async () => {
         if (!selectedPatientId) {
             alert('Por favor, selecione um paciente primeiro.');
             return;
         }
-        if (!recognitionRef.current) {
-            alert('Seu navegador não suporta reconhecimento de voz.');
-            return;
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const mediaRecorder = new MediaRecorder(stream);
+            mediaRecorderRef.current = mediaRecorder;
+            audioChunksRef.current = [];
+
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    audioChunksRef.current.push(event.data);
+                }
+            };
+
+            mediaRecorder.onstop = async () => {
+                const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+                // Stop all tracks to release the microphone
+                stream.getTracks().forEach(track => track.stop());
+                
+                await handleTranscription(audioBlob);
+            };
+
+            mediaRecorder.start(1000); // collect data every second
+            setIsRecording(true);
+
+            // Start Timer
+            timerRef.current = setInterval(() => {
+                setTimer(prev => prev + 1);
+            }, 1000);
+        } catch (err) {
+            console.error("Erro ao acessar microfone:", err);
+            alert('Não foi possível acessar o microfone. Verifique as permissões do navegador.');
         }
-
-        recognitionRef.current.start();
-        setIsRecording(true);
-
-        // Start Timer
-        timerRef.current = setInterval(() => {
-            setTimer(prev => prev + 1);
-        }, 1000);
     };
 
     const stopRecording = () => {
-        if (recognitionRef.current) {
-            recognitionRef.current.stop();
+        if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+            mediaRecorderRef.current.stop();
         }
         setIsRecording(false);
         if (timerRef.current) {
             clearInterval(timerRef.current);
             timerRef.current = null;
+        }
+    };
+
+    const handleTranscription = async (audioBlob: Blob) => {
+        setIsTranscribing(true);
+        try {
+            // dynamically import deepgram service so it doesn't break if not present
+            const { transcribeAudio } = await import('@/services/deepgramService');
+            const transcript = await transcribeAudio(audioBlob);
+            
+            if (transcript) {
+                setSessionNotes(prev => prev + (prev ? '\n\n' : '') + transcript);
+            } else {
+                alert('Áudio muito curto ou nenhuma fala detectada.');
+            }
+        } catch (error) {
+            console.error("Erro ao transcrever:", error);
+            alert('Erro ao processar o áudio no servidor (Deepgram).');
+        } finally {
+            setIsTranscribing(false);
         }
     };
 
@@ -134,7 +150,7 @@ const AiAssistant: React.FC = () => {
             const { error } = await supabase.from('sessions').insert([newSession]);
             if (error) throw error;
 
-            alert('Atendimento salva com sucesso!');
+            alert('Atendimento salvo com sucesso!');
             setSessionNotes('');
             setAiSummary('');
             setTimer(0);
@@ -186,7 +202,15 @@ const AiAssistant: React.FC = () => {
                     </div>
                 </div>
 
-                {sessionNotes && (
+                {isTranscribing && (
+                    <div className="w-full mb-8 flex flex-col items-center justify-center p-8 bg-white border border-gray-100 rounded-xl shadow-sm animate-pulse">
+                        <Loader2 className="animate-spin text-[#6A8164] mb-3" size={32} />
+                        <p className="text-sm font-medium text-gray-600">Processando áudio via Deepgram...</p>
+                        <p className="text-xs text-gray-400 text-center mt-2 max-w-xs">Isso pode levar alguns segundos dependendo do tamanho da gravação.</p>
+                    </div>
+                )}
+
+                {sessionNotes && !isTranscribing && (
                     <div className="w-full mb-8 animate-fade-in">
                         <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
                             <p className="text-sm text-gray-600 whitespace-pre-wrap">{sessionNotes}</p>
