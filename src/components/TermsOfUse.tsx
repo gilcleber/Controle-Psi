@@ -34,7 +34,7 @@ const TermsOfUse: React.FC<TermsOfUseProps> = ({ isOpen, onClose }) => {
                     <h3 className="font-bold text-primary">2. Privacidade e Dados</h3>
                     <p>Nós levamos a privacidade a sério. Todos os dados inseridos são de responsabilidade do profissional.</p>
                     <ul className="list-disc pl-5 space-y-1">
-                        <li>Os dados dos pacientes são sigilosos.</li>
+                        <li>Os dados dos clientes são sigilosos.</li>
                         <li>Recomendamos o uso de senhas fortes.</li>
                         <li>O sistema utiliza criptografia padrão para comunicação.</li>
                     </ul>

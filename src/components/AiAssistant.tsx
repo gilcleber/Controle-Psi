@@ -42,7 +42,7 @@ const AiAssistant: React.FC = () => {
 
     const startRecording = async () => {
         if (!selectedPatientId) {
-            alert('Por favor, selecione um paciente primeiro.');
+            alert('Por favor, selecione um cliente primeiro.');
             return;
         }
 
@@ -172,8 +172,8 @@ const AiAssistant: React.FC = () => {
                 <h3 className="text-lg font-bold text-gray-800 mb-6">Use a Inteligência Artificial para fazer um resumo da atendimento</h3>
 
                 <div className="w-full bg-white rounded-xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] border border-gray-100 p-8 mb-10">
-                    <h4 className="text-xl font-bold text-gray-800 mb-1">Escolha o paciente</h4>
-                    <p className="text-sm text-gray-500 mb-6">Selecione o paciente para associar esta gravação</p>
+                    <h4 className="text-xl font-bold text-gray-800 mb-1">Escolha o cliente</h4>
+                    <p className="text-sm text-gray-500 mb-6">Selecione o cliente para associar esta gravação</p>
 
                     <div className="relative mb-12">
                         <select
@@ -181,7 +181,7 @@ const AiAssistant: React.FC = () => {
                             value={selectedPatientId}
                             onChange={(e) => setSelectedPatientId(e.target.value)}
                         >
-                            <option value="" disabled>Pacientes</option>
+                            <option value="" disabled>Clientes</option>
                             {patients.map(p => (
                                 <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>
                             ))}
@@ -238,7 +238,7 @@ const AiAssistant: React.FC = () => {
                         </li>
                         <li className="flex gap-3 items-start">
                             <span className="block w-1.5 h-1.5 rounded-full bg-[#6A8164] mt-1.5 flex-shrink-0"></span>
-                            <span>Após a sessão, clique em <strong className="text-[#6A8164]">Salvar e Gerar Resumo</strong>. O sistema processará o áudio, criará um resumo clínico profissional e o salvará <strong className="text-gray-700">automaticamente no Prontuário do paciente</strong>.</span>
+                            <span>Após a sessão, clique em <strong className="text-[#6A8164]">Salvar e Gerar Resumo</strong>. O sistema processará o áudio, criará um resumo clínico profissional e o salvará <strong className="text-gray-700">automaticamente no Prontuário do cliente</strong>.</span>
                         </li>
                         <li className="flex gap-3 items-start">
                             <span className="block w-1.5 h-1.5 rounded-full bg-[#6A8164] mt-1.5 flex-shrink-0"></span>

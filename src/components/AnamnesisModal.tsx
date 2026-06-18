@@ -79,7 +79,7 @@ export default function AnamnesisModal({ patientId, patientName, onClose }: Anam
                 <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-xl">
                     <div>
                         <h3 className="text-xl font-bold text-gray-800">Ficha de Anamnese</h3>
-                        <p className="text-sm text-gray-500">Paciente: {patientName}</p>
+                        <p className="text-sm text-gray-500">Cliente: {patientName}</p>
                     </div>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
                 </div>
@@ -94,7 +94,7 @@ export default function AnamnesisModal({ patientId, patientName, onClose }: Anam
                             <FileText size={64} className="text-gray-300 mb-4" />
                             <h4 className="text-lg font-bold text-gray-800 mb-2">Nenhuma Ficha de Anamnese</h4>
                             <p className="text-gray-500 mb-6 max-w-md">
-                                Este paciente ainda não possui uma ficha de anamnese. Clique no botão abaixo para gerar um link único e enviá-lo ao paciente pelo WhatsApp.
+                                Este cliente ainda não possui uma ficha de anamnese. Clique no botão abaixo para gerar um link único e enviá-lo ao cliente pelo WhatsApp.
                             </p>
                             <button
                                 onClick={generateLink}
@@ -112,7 +112,7 @@ export default function AnamnesisModal({ patientId, patientName, onClose }: Anam
                             </div>
                             <h4 className="text-lg font-bold text-gray-800 mb-2">Aguardando Preenchimento</h4>
                             <p className="text-gray-500 mb-6 max-w-md">
-                                O link já foi gerado. Copie o link abaixo e envie para o paciente. Assim que ele preencher, as respostas aparecerão aqui automaticamente.
+                                O link já foi gerado. Copie o link abaixo e envie para o cliente. Assim que ele preencher, as respostas aparecerão aqui automaticamente.
                             </p>
                             
                             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 w-full max-w-md flex items-center gap-3">

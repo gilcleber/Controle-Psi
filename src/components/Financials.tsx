@@ -242,7 +242,7 @@ const Financials: React.FC = () => {
                         <tr>
                            <th className="px-6 py-4 rounded-l-lg">Data</th>
                            <th className="px-6 py-4">Descrição</th>
-                           <th className="px-6 py-4">Paciente</th>
+                           <th className="px-6 py-4">Cliente</th>
                            <th className="px-6 py-4">Método</th>
                            <th className="px-6 py-4 text-right">Valor</th>
                            <th className="px-6 py-4 rounded-r-lg text-center">Ações</th>
@@ -334,14 +334,14 @@ const Financials: React.FC = () => {
                      </div>
 
                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Paciente (opcional)</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Cliente (opcional)</label>
                         <div className="relative">
                            <select
                               className="w-full border border-gray-300 rounded-lg p-2.5 pr-10 focus:ring-2 focus:ring-[#6A8164] focus:border-transparent bg-white appearance-none"
                               value={formData.patient_id}
                               onChange={e => setFormData({ ...formData, patient_id: e.target.value })}
                            >
-                              <option value="">Selecione um paciente</option>
+                              <option value="">Selecione um cliente</option>
                               <option value="">Nenhum</option>
                               {patients.map(p => (
                                  <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>

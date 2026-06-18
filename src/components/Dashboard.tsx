@@ -63,7 +63,7 @@ const Dashboard: React.FC = () => {
       const upcomingList: DashboardSession[] = [];
 
       (sessions || []).forEach((s: any) => {
-        // Tratar snake_case do paciente (supabase)
+        // Tratar snake_case do cliente (supabase)
         const patientData = {
             firstName: s.patient?.first_name || '',
             lastName: s.patient?.last_name || '',

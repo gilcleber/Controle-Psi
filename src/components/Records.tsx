@@ -193,7 +193,7 @@ const Records: React.FC = () => {
     const finalNotes = getFormattedNotes();
 
     if (!selectedPatientId || !finalNotes.trim()) {
-      alert('Selecione um paciente e adicione anotações.');
+      alert('Selecione um cliente e adicione anotações.');
       return;
     }
 
@@ -246,19 +246,19 @@ const Records: React.FC = () => {
     <div className="p-8 h-full flex flex-col">
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-800">Prontuários</h2>
-        <p className="text-gray-500">Visualize e edite os prontuários dos seus pacientes</p>
+        <p className="text-gray-500">Visualize e edite os prontuários dos seus clientes</p>
       </div>
 
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col h-full">
         <div className="w-full md:w-1/3 mb-6 relative">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Escolha o paciente</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Escolha o cliente</label>
           <div className="relative">
             <select
               className="w-full appearance-none border border-gray-300 rounded-lg p-3 pr-10 focus:ring-[#6A8164] focus:border-[#6A8164] bg-white cursor-pointer"
               value={selectedPatientId}
               onChange={(e) => setSelectedPatientId(e.target.value)}
             >
-              <option value="" disabled>Selecione um paciente</option>
+              <option value="" disabled>Selecione um cliente</option>
               {patients.map(p => (
                 <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>
               ))}
@@ -270,8 +270,8 @@ const Records: React.FC = () => {
         {!selectedPatient ? (
           <div className="flex-1 flex flex-col items-center justify-center text-gray-400 border-2 border-dashed border-gray-100 rounded-lg bg-gray-50/50">
             <FileText size={64} className="mb-4 opacity-50" />
-            <h3 className="text-xl font-semibold text-gray-600">Selecione um paciente</h3>
-            <p className="max-w-md text-center mt-2 text-sm">Escolha um paciente na lista acima para visualizar seu histórico, criar novas sessões e usar a IA para resumos.</p>
+            <h3 className="text-xl font-semibold text-gray-600">Selecione um cliente</h3>
+            <p className="max-w-md text-center mt-2 text-sm">Escolha um cliente na lista acima para visualizar seu histórico, criar novas sessões e usar a IA para resumos.</p>
           </div>
         ) : (
           <div className="flex-1 flex flex-col animate-fade-in">
@@ -318,7 +318,7 @@ const Records: React.FC = () => {
             <div className="flex-1 overflow-y-auto space-y-6">
               {sessions.length === 0 ? (
                 <div className="text-center text-gray-400 py-10">
-                  Nenhum atendimento registrado para este paciente.
+                  Nenhum atendimento registrado para este cliente.
                 </div>
               ) : (
                 sessions.map(session => (
@@ -423,7 +423,7 @@ const Records: React.FC = () => {
                         className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-primary focus:border-transparent"
                         value={structuredData.mood}
                         onChange={(e) => setStructuredData({ ...structuredData, mood: e.target.value })}
-                        placeholder="Como o paciente estava se sentindo?"
+                        placeholder="Como o cliente estava se sentindo?"
                       />
                     </div>
                     <div>

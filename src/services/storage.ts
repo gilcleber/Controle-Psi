@@ -52,7 +52,7 @@ export const storage = {
       email: patient.email,
       status: patient.status,
       session_price: patient.sessionPrice,
-      birth_date: patient.birthDate,
+      birth_date: patient.birthDate === '' ? null : patient.birthDate,
       religion: patient.religion,
       medication: patient.medication,
       session_link: patient.sessionLink,
@@ -82,7 +82,7 @@ export const storage = {
       email: updatedPatient.email,
       status: updatedPatient.status,
       session_price: updatedPatient.sessionPrice,
-      birth_date: updatedPatient.birthDate,
+      birth_date: updatedPatient.birthDate === '' ? null : updatedPatient.birthDate,
       religion: updatedPatient.religion,
       medication: updatedPatient.medication,
       session_link: updatedPatient.sessionLink

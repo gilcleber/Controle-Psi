@@ -253,7 +253,7 @@ const Agenda: React.FC = () => {
    const handleWhatsApp = (e: React.MouseEvent, phone: string | undefined, name: string | undefined, date: string, time: string) => {
       e.stopPropagation();
       if (!phone) {
-         alert('Paciente sem telefone cadastrado.');
+         alert('Cliente sem telefone cadastrado.');
          return;
       }
 
@@ -519,7 +519,7 @@ const Agenda: React.FC = () => {
 
                {/* Bottom Section: Patients without appointments */}
                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h4 className="font-bold text-gray-800 mb-4 text-sm">Pacientes ativos sem agendamento</h4>
+                  <h4 className="font-bold text-gray-800 mb-4 text-sm">Clientes ativos sem agendamento</h4>
                   <div className="space-y-2">
                      {patientsWithoutAppointments.slice(0, 3).map(p => (
                         <div key={p.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
@@ -541,15 +541,15 @@ const Agenda: React.FC = () => {
                         </div>
                      ))}
                      {patientsWithoutAppointments.length === 0 && (
-                        <p className="text-sm text-gray-400 text-center">Todos os pacientes ativos possuem agendamento.</p>
+                        <p className="text-sm text-gray-400 text-center">Todos os clientes ativos possuem agendamento.</p>
                      )}
                   </div>
                </div>
             </div>
 
-            {/* Right Sidebar: Meus Pacientes */}
+            {/* Right Sidebar: Meus Clientes */}
             <div className="w-80 bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col h-fit">
-               <h3 className="font-bold text-gray-800 mb-4">Meus pacientes</h3>
+               <h3 className="font-bold text-gray-800 mb-4">Meus clientes</h3>
                <button
                   onClick={() => openModal()}
                   className="w-full py-2.5 border border-gray-200 text-gray-600 rounded-lg text-sm hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 mb-6 font-medium"
@@ -588,13 +588,13 @@ const Agenda: React.FC = () => {
                      </div>
                      <div className="p-6 space-y-4">
                         <div>
-                           <label className="block text-sm font-medium text-gray-700 mb-1.5">Paciente:</label>
+                           <label className="block text-sm font-medium text-gray-700 mb-1.5">Cliente:</label>
                            <select
                               className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#6A8164] focus:border-transparent bg-white"
                               value={newAppointment.patientId}
                               onChange={(e) => setNewAppointment({ ...newAppointment, patientId: e.target.value })}
                            >
-                              <option value="">Selecione o paciente</option>
+                              <option value="">Selecione o cliente</option>
                               {patients.map(p => (
                                  <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>
                               ))}

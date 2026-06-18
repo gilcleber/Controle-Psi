@@ -72,18 +72,18 @@ const Patients: React.FC<PatientsProps> = ({ onNavigate }) => {
       await loadPatients();
       closeModal();
     } catch (error) {
-      alert('Erro ao salvar paciente. Tente novamente.');
+      alert('Erro ao salvar cliente. Tente novamente.');
       console.error(error);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm('Tem certeza que deseja excluir este paciente?')) {
+    if (confirm('Tem certeza que deseja excluir este cliente?')) {
       try {
         await storage.deletePatient(id);
         await loadPatients();
       } catch (error) {
-        alert('Erro ao excluir paciente.');
+        alert('Erro ao excluir cliente.');
       }
     }
   };
@@ -132,15 +132,15 @@ const Patients: React.FC<PatientsProps> = ({ onNavigate }) => {
     <div className="p-8 h-full flex flex-col bg-[#f8f9fa] min-h-screen">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">Meus pacientes</h2>
-          <p className="text-gray-500 text-sm mt-1">Gerencie seus pacientes e visualize informações importantes</p>
+          <h2 className="text-2xl font-bold text-gray-800">Meus clientes</h2>
+          <p className="text-gray-500 text-sm mt-1">Gerencie seus clientes e visualize informações importantes</p>
         </div>
         <button
           onClick={() => openModal()}
           className="bg-[#6A8164] hover:bg-[#586e53] text-white px-5 py-2.5 rounded-lg flex items-center gap-2 transition-all shadow-sm font-medium"
         >
           <Plus size={18} />
-          Adicionar paciente
+          Adicionar cliente
         </button>
       </div>
 
@@ -150,21 +150,21 @@ const Patients: React.FC<PatientsProps> = ({ onNavigate }) => {
             onClick={() => setActiveTab('active')}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors relative ${activeTab === 'active' ? 'bg-white border border-gray-200 text-gray-800 shadow-sm' : 'bg-transparent text-gray-500 hover:bg-gray-100'}`}
           >
-            Pacientes ativos
+            Clientes ativos
             <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] flex items-center justify-center rounded-full">{patients.filter(p => p.status === 'ativo').length}</span>
           </button>
           <button
             onClick={() => setActiveTab('inactive')}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'inactive' ? 'bg-white border border-gray-200 text-gray-800 shadow-sm' : 'bg-transparent text-gray-500 hover:bg-gray-100'}`}
           >
-            Pacientes inativos
+            Clientes inativos
           </button>
         </div>
         <div className="flex-1 flex justify-end">
           <div className="relative w-64">
             <input
               type="text"
-              placeholder="Buscar nome de pacientes"
+              placeholder="Buscar nome de clientes"
               className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6A8164] focus:border-transparent bg-white shadow-sm text-sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -176,7 +176,7 @@ const Patients: React.FC<PatientsProps> = ({ onNavigate }) => {
 
       {patients.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center text-gray-400">
-          Nenhum paciente cadastrado.
+          Nenhum cliente cadastrado.
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto pb-4">
@@ -239,7 +239,7 @@ const Patients: React.FC<PatientsProps> = ({ onNavigate }) => {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden animate-fade-in">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-              <h3 className="text-xl font-bold text-gray-800">{editingPatient ? 'Editar paciente' : 'Novo paciente'}</h3>
+              <h3 className="text-xl font-bold text-gray-800">{editingPatient ? 'Editar cliente' : 'Novo cliente'}</h3>
               <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
             </div>
             <div className="p-8 space-y-5 max-h-[80vh] overflow-y-auto">
@@ -344,7 +344,7 @@ const Patients: React.FC<PatientsProps> = ({ onNavigate }) => {
                     <input type="checkbox" name="toggle" id="toggle" className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" checked={formData.status === 'ativo'} onChange={(e) => setFormData({ ...formData, status: e.target.checked ? 'ativo' : 'inativo' })} />
                     <label htmlFor="toggle" className={`toggle-label block overflow-hidden h-6 rounded-full cursor-pointer ${formData.status === 'ativo' ? 'bg-[#6A8164]' : 'bg-gray-300'}`}></label>
                   </div>
-                  <label htmlFor="toggle" className="text-sm text-gray-700">Paciente ativo: {formData.status === 'ativo' ? 'sim' : 'não'}</label>
+                  <label htmlFor="toggle" className="text-sm text-gray-700">Cliente ativo: {formData.status === 'ativo' ? 'sim' : 'não'}</label>
                 </div>
               </div>
 

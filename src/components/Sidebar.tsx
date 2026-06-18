@@ -31,7 +31,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onNavigate }) => {
 
   const menuItems = [
     { page: Page.DASHBOARD, label: 'Minha página', icon: LayoutDashboard },
-    { page: Page.PATIENTS, label: 'Pacientes', icon: Users },
+    { page: Page.PATIENTS, label: 'Clientes', icon: Users },
     { page: Page.RECORDS, label: 'Prontuários', icon: FileText },
     { page: Page.AI_ASSISTANT, label: 'Inteligência artificial', icon: BrainCircuit },
     { page: Page.AGENDA, label: 'Agenda', icon: Calendar },

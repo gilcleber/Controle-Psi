@@ -144,7 +144,7 @@ const FormTemplates: React.FC = () => {
         // O link genérico tem o therapist ID (t) e o template ID (template)
         const link = `${window.location.origin}/anamnese?t=${userAuth.id}&template=${selectedTemplate.id}`;
         navigator.clipboard.writeText(link);
-        alert('Link genérico copiado! Envie este link para os NOVOS pacientes.');
+        alert('Link genérico copiado! Envie este link para os NOVOS clientes.');
     };
 
     if (loading) {
@@ -159,7 +159,7 @@ const FormTemplates: React.FC = () => {
         <div className="p-8 h-full flex flex-col bg-background min-h-screen">
             <div className="mb-6">
                 <h2 className="text-2xl font-bold text-gray-800">Modelos de Fichas</h2>
-                <p className="text-gray-500">Configure suas fichas de anamnese para envio aos novos pacientes</p>
+                <p className="text-gray-500">Configure suas fichas de anamnese para envio aos novos clientes</p>
             </div>
 
             <div className="flex flex-col md:flex-row gap-8 h-full">
@@ -239,14 +239,14 @@ const FormTemplates: React.FC = () => {
                                         placeholder="https://suaimagem.com/logo.png"
                                         className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-[#6A8164]"
                                     />
-                                    <p className="text-xs text-gray-400 mt-1">Cole aqui o link da imagem que vai ficar no topo da ficha para o seu paciente ver.</p>
+                                    <p className="text-xs text-gray-400 mt-1">Cole aqui o link da imagem que vai ficar no topo da ficha para o seu cliente ver.</p>
                                 </div>
                             </div>
 
                             <div className="border-t border-gray-100 pt-6">
                                 <h4 className="font-bold text-gray-800 mb-4 flex items-center justify-between">
                                     Perguntas da Ficha
-                                    <span className="text-xs font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded">As 7 primeiras perguntas (dados do paciente) são obrigatórias pelo sistema.</span>
+                                    <span className="text-xs font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded">As 7 primeiras perguntas (dados do cliente) são obrigatórias pelo sistema.</span>
                                 </h4>
                                 
                                 <div className="space-y-3">

@@ -64,7 +64,7 @@ export default function DocumentGenerator() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label className="block text-sm font-medium text-text-main mb-1.5">Paciente</label>
+                            <label className="block text-sm font-medium text-text-main mb-1.5">Cliente</label>
                             <select
                                 value={selectedPatientId}
                                 onChange={(e) => setSelectedPatientId(e.target.value)}

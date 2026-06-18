@@ -19,7 +19,7 @@ const AnamnesisViewer: React.FC<AnamnesisViewerProps> = ({ form, patientName, on
                         <FileText size={24} />
                         <div>
                             <h3 className="text-xl font-bold">Ficha de Anamnese Respondida</h3>
-                            <p className="text-green-100 text-sm">Paciente: {patientName}</p>
+                            <p className="text-green-100 text-sm">Cliente: {patientName}</p>
                         </div>
                     </div>
                     <button onClick={onClose} className="text-green-100 hover:text-white text-3xl leading-none">&times;</button>
@@ -45,7 +45,7 @@ const AnamnesisViewer: React.FC<AnamnesisViewerProps> = ({ form, patientName, on
                             </div>
                         ))}
                         {Object.keys(answers).length === 0 && (
-                            <p className="text-center text-gray-400 py-8">Nenhuma resposta adicional além dos dados básicos do paciente.</p>
+                            <p className="text-center text-gray-400 py-8">Nenhuma resposta adicional além dos dados básicos do cliente.</p>
                         )}
                     </div>
                 </div>

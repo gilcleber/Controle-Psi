@@ -110,7 +110,7 @@ export default function AnamnesisForm() {
                 }
             });
 
-            // RPC call para bypassar RLS e inserir/atualizar paciente e anamnese
+            // RPC call para bypassar RLS e inserir/atualizar cliente e anamnese
             const { data, error } = await supabase.rpc('submit_public_anamnesis', {
                 p_therapist_id: therapistId,
                 p_template_id: templateId,
