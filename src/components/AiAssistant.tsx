@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Patient } from '@/types';
 import { storage } from '@/services/storage';
 import { supabase } from '@/services/supabaseClient';
-import { Mic, StopCircle, ChevronDown, Sparkles, Loader2 } from 'lucide-react';
+import { Mic, StopCircle, ChevronDown, Sparkles, Loader2, Upload } from 'lucide-react';
 import { summarizeSessionNotes } from '@/services/geminiService';
 
 const AiAssistant: React.FC = () => {
@@ -88,6 +88,22 @@ const AiAssistant: React.FC = () => {
             clearInterval(timerRef.current);
             timerRef.current = null;
         }
+    };
+
+    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        if (!selectedPatientId) {
+            alert('Por favor, selecione um cliente primeiro.');
+            return;
+        }
+
+        // Pass the file directly to transcription
+        await handleTranscription(file);
+        
+        // Reset the input so the user can upload the same file again if needed
+        event.target.value = '';
     };
 
     const handleTranscription = async (audioBlob: Blob) => {
@@ -190,15 +206,39 @@ const AiAssistant: React.FC = () => {
                     </div>
 
                     <div className="flex flex-col items-center justify-center">
-                        <button
-                            onClick={isRecording ? stopRecording : startRecording}
-                            className={`w-20 h-20 rounded-full flex items-center justify-center transition-all shadow-lg mb-4 ${isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : 'bg-[#A8B5A6] hover:bg-[#96a594]'
-                                }`}
-                        >
-                            {isRecording ? <StopCircle size={32} className="text-white" /> : <Mic size={32} className="text-white" />}
-                        </button>
-                        <div className="text-2xl font-bold text-gray-800 tracking-wider">{formatTime(timer)}</div>
-                        <p className="text-xs text-gray-500 mt-1">Tempo total da atendimento</p>
+                        <div className="flex gap-8 items-center justify-center mb-2">
+                            <div className="flex flex-col items-center">
+                                <button
+                                    onClick={isRecording ? stopRecording : startRecording}
+                                    className={`w-20 h-20 rounded-full flex items-center justify-center transition-all shadow-lg mb-3 ${isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : 'bg-[#A8B5A6] hover:bg-[#96a594]'
+                                        }`}
+                                >
+                                    {isRecording ? <StopCircle size={32} className="text-white" /> : <Mic size={32} className="text-white" />}
+                                </button>
+                                <span className="text-sm font-medium text-gray-500">{isRecording ? 'Gravando...' : 'Gravar Áudio'}</span>
+                            </div>
+
+                            <div className="flex flex-col items-center">
+                                <label className={`w-20 h-20 rounded-full flex items-center justify-center transition-all shadow-lg mb-3 ${(isRecording || isTranscribing) ? 'bg-gray-100 cursor-not-allowed opacity-50' : 'bg-[#e5e9e4] hover:bg-[#d8ddd7] cursor-pointer'} text-[#586e53]`}>
+                                    <input 
+                                        type="file" 
+                                        accept="audio/*" 
+                                        className="hidden" 
+                                        onChange={handleFileUpload}
+                                        disabled={isRecording || isTranscribing}
+                                    />
+                                    <Upload size={30} />
+                                </label>
+                                <span className="text-sm font-medium text-gray-500">Enviar Arquivo</span>
+                            </div>
+                        </div>
+
+                        {isRecording && (
+                            <div className="mt-4 flex flex-col items-center">
+                                <div className="text-3xl font-bold text-gray-800 tracking-wider animate-pulse">{formatTime(timer)}</div>
+                                <p className="text-xs text-gray-500 mt-1">Tempo de gravação</p>
+                            </div>
+                        )}
                     </div>
                 </div>
 
