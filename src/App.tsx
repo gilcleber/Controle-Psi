@@ -16,20 +16,28 @@ import ProfileCompletion from '@/components/ProfileCompletion';
 import FormTemplates from './components/FormTemplates';
 import AnamnesisForm from './components/AnamnesisForm';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
-import { BrainCircuit, LogOut } from 'lucide-react';
+import { BrainCircuit, LogOut, Menu, X } from 'lucide-react';
 
 // Header Component
-const Header = () => {
+const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
   const { user, signOut } = useAuth();
 
   return (
-    <header className="bg-white h-16 border-b border-secondary-light flex items-center justify-between px-8 shadow-sm">
-      <div className="flex items-center gap-2 text-primary-dark">
-        <BrainCircuit size={20} />
-        <span className="font-semibold text-text-light text-sm">ControlePsi</span>
+    <header className="bg-white h-16 border-b border-secondary-light flex items-center justify-between px-4 md:px-8 shadow-sm">
+      <div className="flex items-center gap-2">
+        <button 
+          onClick={onMenuClick}
+          className="md:hidden text-gray-500 hover:text-gray-700 transition-colors p-2"
+        >
+          <Menu size={24} />
+        </button>
+        <div className="flex items-center gap-2 text-primary-dark">
+          <BrainCircuit size={20} />
+          <span className="font-semibold text-text-light text-sm hidden sm:inline">ControlePsi</span>
+        </div>
       </div>
       <div className="flex items-center gap-3">
-        <span className="text-sm text-text-light">Olá, <span className="font-bold text-text-main">{user?.email?.split('@')[0]}</span></span>
+        <span className="text-sm text-text-light hidden sm:inline">Olá, <span className="font-bold text-text-main">{user?.email?.split('@')[0]}</span></span>
         <div className="w-8 h-8 rounded-full bg-primary-dark text-white flex items-center justify-center font-bold text-sm">
           {user?.email?.[0].toUpperCase()}
         </div>
@@ -43,13 +51,19 @@ const Header = () => {
 
 const AuthenticatedApp: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<Page>(Page.DASHBOARD);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const handleNavigate = (page: Page) => {
+    setCurrentPage(page);
+    setIsMobileMenuOpen(false); // Close menu on mobile after navigation
+  };
 
   const renderContent = () => {
     switch (currentPage) {
       case Page.DASHBOARD:
         return <Dashboard />;
       case Page.PATIENTS:
-        return <Patients onNavigate={setCurrentPage} />;
+        return <Patients onNavigate={handleNavigate} />;
       case Page.RECORDS:
         return <Records />;
       case Page.AI_ASSISTANT:
@@ -71,10 +85,15 @@ const AuthenticatedApp: React.FC = () => {
 
   return (
     <div className="flex min-h-screen bg-background font-sans text-text-main">
-      <Sidebar currentPage={currentPage} onNavigate={setCurrentPage} />
+      <Sidebar 
+        currentPage={currentPage} 
+        onNavigate={handleNavigate} 
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+      />
 
-      <div className="ml-64 flex-1 flex flex-col h-screen overflow-hidden">
-        <Header />
+      <div className="md:ml-64 flex-1 flex flex-col h-screen overflow-hidden w-full">
+        <Header onMenuClick={() => setIsMobileMenuOpen(true)} />
         <main className="flex-1 overflow-y-auto relative">
           {renderContent()}
         </main>
